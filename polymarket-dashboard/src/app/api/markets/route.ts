@@ -32,7 +32,7 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error!  status: ${response.status}`);
     }
 
     const markets = await response.json();
