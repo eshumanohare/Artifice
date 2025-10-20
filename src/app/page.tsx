@@ -63,10 +63,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl sm:text-8xl font-extrabold text-gray-900 mb-4 tracking-tight">
+          <h1 className="text-6xl sm:text-8xl font-extrabold text-blue-900 mb-4 tracking-tight" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
             Artifice
           </h1>
-          <p className="text-lg text-gray-700 font-medium">
+          <p className="text-lg text-blue-800 font-medium" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
             Top Polymarket Markets by 24h Volume
           </p>
         </div>
