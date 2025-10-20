@@ -39,21 +39,25 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
   }, [onClose]);
 
   useEffect(() => {
+    let isMounted = true;
+    let intervalId: any;
     const fetchHolders = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/holders?conditionId=${encodeURIComponent(market.conditionId)}`);
+        const res = await fetch(`/api/holders?conditionId=${encodeURIComponent(market.conditionId)}&limit=10`);
         if (!res.ok) throw new Error('Failed to fetch holders');
         const data: HoldersResponse = await res.json();
-        setHolders(data);
+        if (isMounted) setHolders(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        if (isMounted) setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchHolders();
+    intervalId = setInterval(fetchHolders, 60000);
+    return () => { isMounted = false; clearInterval(intervalId); };
   }, [market.conditionId]);
 
   const formatCurrency = (value: number) => {
@@ -76,7 +80,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
       onClick={onClose}
     >
       <div
-        className="glass-card w-full max-w-7xl border border-blue-200/40"
+        className="glass-card w-full max-w-7xl border border-blue-200/40 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top: Market info rectangle */}
@@ -146,39 +150,50 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
           </div>
 
           {/* Holders: two spacious columns */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* YES holders */}
-            <div className="glass-card p-5">
-              <h3 className="text-base font-semibold text-green-700 mb-4">YES Holders</h3>
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold text-green-700 mb-5">TOP YES Holders</h3>
               {loading && <div className="text-sm text-gray-700">Loading holders...</div>}
               {error && <div className="text-sm text-red-700 bg-red-50 border border-red-100 p-3 rounded">{error}</div>}
               {!loading && !error && holders && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {holders.yes.map((h, idx) => {
                     const usd = (h.shares || 0) * (yesPrice / 100);
                     const name = h.displayName && h.displayName.trim().length > 0 ? h.displayName : (h.addressShort || shorten(h.address));
+                    const profileHandle = (h.displayName && h.displayName.trim().length > 0) ? h.displayName.trim() : '';
+                    const profileUrl = profileHandle ? `https://polymarket.com/@${profileHandle}` : undefined;
                     return (
-                      <div key={`yes-${idx}`} className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
+                      <div key={`yes-${idx}`} className="flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 min-w-0">
                           {h.profileImage ? (
-                            <img src={h.profileImage} alt={name} className="h-8 w-8 rounded-full object-cover" />
+                            <img src={h.profileImage} alt={name} className="h-10 w-10 rounded-full object-cover" />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xs">Y</div>
+                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-sm">Y</div>
                           )}
                           <div className="min-w-0">
-                            <div className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
-                            <div className="text-xs text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
+                            {profileUrl ? (
+                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</a>
+                            ) : (
+                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
+                            )}
+                            <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
+                            {typeof (h as any).winStreak === 'number' && (
+                              <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">Win streak: {(h as any).winStreak}</div>
+                            )}
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="font-medium text-gray-900">{h.shares.toLocaleString()} shares</div>
-                          <div className="text-xs text-gray-600">{formatCurrency(usd)}</div>
+                          <div className="text-lg font-semibold text-gray-900">{h.shares.toLocaleString()} shares</div>
+                          <div className="text-sm text-gray-600">{formatCurrency(usd)}</div>
                           {typeof h.avgPriceCents === 'number' && (
-                            <div className="text-xs text-gray-600">Avg: {h.avgPriceCents.toFixed(1)}¢</div>
+                            <div className="text-sm text-gray-600">Avg: {h.avgPriceCents.toFixed(1)}¢</div>
                           )}
-                          {typeof h.cashPnlUsd === 'number' && (
-                            <div className={`text-xs ${h.cashPnlUsd >= 0 ? 'text-green-700' : 'text-red-700'}`}>PnL: {formatCurrency(h.cashPnlUsd)}{typeof h.percentPnl === 'number' ? ` (${h.percentPnl.toFixed(1)}%)` : ''}</div>
-                          )}
+                          {typeof h.percentPnl === 'number' || typeof h.percentRealizedPnl === 'number' ? (
+                            <div className={`text-sm ${(h.percentPnl ?? h.percentRealizedPnl ?? 0) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                              PnL: {(h.percentPnl ?? h.percentRealizedPnl ?? 0).toFixed(1)}%
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     );
@@ -188,37 +203,48 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
             </div>
 
             {/* NO holders */}
-            <div className="glass-card p-5">
-              <h3 className="text-base font-semibold text-red-700 mb-4">NO Holders</h3>
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold text-red-700 mb-5">TOP NO Holders</h3>
               {loading && <div className="text-sm text-gray-700">Loading holders...</div>}
               {error && <div className="text-sm text-red-700 bg-red-50 border border-red-100 p-3 rounded">{error}</div>}
               {!loading && !error && holders && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {holders.no.map((h, idx) => {
                     const usd = (h.shares || 0) * (noPrice / 100);
                     const name = h.displayName && h.displayName.trim().length > 0 ? h.displayName : (h.addressShort || shorten(h.address));
+                    const profileHandle = (h.displayName && h.displayName.trim().length > 0) ? h.displayName.trim() : '';
+                    const profileUrl = profileHandle ? `https://polymarket.com/@${profileHandle}` : undefined;
                     return (
-                      <div key={`no-${idx}`} className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
+                      <div key={`no-${idx}`} className="flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 min-w-0">
                           {h.profileImage ? (
-                            <img src={h.profileImage} alt={name} className="h-8 w-8 rounded-full object-cover" />
+                            <img src={h.profileImage} alt={name} className="h-10 w-10 rounded-full object-cover" />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs">N</div>
+                            <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-sm">N</div>
                           )}
                           <div className="min-w-0">
-                            <div className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
-                            <div className="text-xs text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
+                            {profileUrl ? (
+                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</a>
+                            ) : (
+                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
+                            )}
+                            <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
+                            {typeof (h as any).winStreak === 'number' && (
+                              <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">Win streak: {(h as any).winStreak}</div>
+                            )}
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="font-medium text-gray-900">{h.shares.toLocaleString()} shares</div>
-                          <div className="text-xs text-gray-600">{formatCurrency(usd)}</div>
+                          <div className="text-lg font-semibold text-gray-900">{h.shares.toLocaleString()} shares</div>
+                          <div className="text-sm text-gray-600">{formatCurrency(usd)}</div>
                           {typeof h.avgPriceCents === 'number' && (
-                            <div className="text-xs text-gray-600">Avg: {h.avgPriceCents.toFixed(1)}¢</div>
+                            <div className="text-sm text-gray-600">Avg: {h.avgPriceCents.toFixed(1)}¢</div>
                           )}
-                          {typeof h.cashPnlUsd === 'number' && (
-                            <div className={`text-xs ${h.cashPnlUsd >= 0 ? 'text-green-700' : 'text-red-700'}`}>PnL: {formatCurrency(h.cashPnlUsd)}{typeof h.percentPnl === 'number' ? ` (${h.percentPnl.toFixed(1)}%)` : ''}</div>
-                          )}
+                          {typeof h.percentPnl === 'number' || typeof h.percentRealizedPnl === 'number' ? (
+                            <div className={`text-sm ${(h.percentPnl ?? h.percentRealizedPnl ?? 0) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                              PnL: {(h.percentPnl ?? h.percentRealizedPnl ?? 0).toFixed(1)}%
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     );

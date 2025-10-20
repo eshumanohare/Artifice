@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       closed: 'false',
       order: 'volume24hr',
       ascending: 'false',
-      limit: '10'
+      limit: '15'
     });
 
     // Add search parameter if provided

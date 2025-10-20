@@ -12,6 +12,8 @@ type Holder = {
   avgPriceCents?: number;
   cashPnlUsd?: number;
   percentPnl?: number;
+  percentRealizedPnl?: number;
+  winStreak?: number; // number of consecutive winning positions
 };
 
 const shorten = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const conditionId = searchParams.get('conditionId');
     const limitStr = searchParams.get('limit');
-    const limit = Math.min(Math.max(parseInt(limitStr || '5', 10) || 5, 1), 20);
+    const limit = Math.min(Math.max(parseInt(limitStr || '10', 10) || 10, 1), 50);
 
     if (!conditionId) {
       return NextResponse.json({ error: 'Missing conditionId' }, { status: 400 });
@@ -69,13 +71,22 @@ export async function GET(request: NextRequest) {
         if (!posRes.ok) return holder;
         const positions = await posRes.json();
         if (!Array.isArray(positions)) return holder;
-        // Find position matching this market's conditionId and side via outcomeIndex
-        const match = positions.find((p: any) => p.conditionId && p.proxyWallet && p.proxyWallet.toLowerCase() === holder.address.toLowerCase());
+        // Find positions for the same conditionId and outcomeIndex
+        const relevant = positions.filter((p: any) => p && p.conditionId === conditionId && typeof p.outcomeIndex === 'number');
+        // Prefer same side if outcomeIndex is available
+        const sideIndex = holder.side === 'YES' ? 0 : 1;
+        const match = relevant.find((p: any) => p.outcomeIndex === sideIndex) || relevant[0];
         if (match) {
           const avgPriceCents = typeof match.avgPrice === 'number' ? match.avgPrice * 100 : undefined;
           const cashPnlUsd = typeof match.cashPnl === 'number' ? match.cashPnl : undefined;
           const percentPnl = typeof match.percentPnl === 'number' ? match.percentPnl : undefined;
-          return { ...holder, avgPriceCents, cashPnlUsd, percentPnl };
+          const percentRealizedPnl = typeof match.percentRealizedPnl === 'number' ? match.percentRealizedPnl : undefined;
+          // Compute a simple win streak: count consecutive positions with percentPnl > 0 from the start of the array
+          let winStreak = 0;
+          for (const p of positions) {
+            if (typeof p.percentPnl === 'number' && p.percentPnl > 0) winStreak += 1; else break;
+          }
+          return { ...holder, avgPriceCents, cashPnlUsd, percentPnl, percentRealizedPnl, winStreak };
         }
         return holder;
       } catch {

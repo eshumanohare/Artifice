@@ -37,4 +37,5 @@ export interface Holder {
   avgPriceCents?: number; // average entry price in cents if available
   cashPnlUsd?: number;
   percentPnl?: number; // -100..+inf
+  percentRealizedPnl?: number;
 }
