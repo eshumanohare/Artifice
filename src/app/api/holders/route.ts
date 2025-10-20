@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { unstable_cache } from 'next/cache';
 
 type Holder = {
   address: string;
@@ -19,10 +20,20 @@ type Holder = {
 
 const shorten = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
-// In-memory cache for closed positions (since they don't change)
-const closedPositionsCache = new Map<string, any[]>();
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
-const cacheTimestamps = new Map<string, number>();
+// Cached function to fetch closed positions (persists across requests)
+const getCachedClosedPositions = unstable_cache(
+  async (address: string) => {
+    const res = await fetch(`https://data-api.polymarket.com/closed-positions?user=${address}&limit=100`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  },
+  ['closed-positions'],
+  {
+    revalidate: 86400, // 24 hours - closed positions don't change
+    tags: ['closed-positions']
+  }
+);
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,26 +106,8 @@ export async function GET(request: NextRequest) {
           percentRealizedPnl = typeof match.percentRealizedPnl === 'number' ? match.percentRealizedPnl : undefined;
         }
         
-        // Fetch closed positions to compute win/lose streaks (with caching)
-        let closedPositions: any[] = [];
-        const cacheKey = holder.address.toLowerCase();
-        const now = Date.now();
-        const cachedTime = cacheTimestamps.get(cacheKey);
-        
-        // Check cache first
-        if (closedPositionsCache.has(cacheKey) && cachedTime && (now - cachedTime < CACHE_TTL)) {
-          closedPositions = closedPositionsCache.get(cacheKey) || [];
-        } else {
-          // Fetch all closed positions (no limit, since they don't change)
-          const closedRes = await fetch(`https://data-api.polymarket.com/closed-positions?user=${holder.address}`, { next: { revalidate: 86400 } });
-          if (closedRes.ok) {
-            closedPositions = await closedRes.json();
-            if (Array.isArray(closedPositions)) {
-              closedPositionsCache.set(cacheKey, closedPositions);
-              cacheTimestamps.set(cacheKey, now);
-            }
-          }
-        }
+        // Fetch closed positions to compute win/lose streaks (using Next.js cache)
+        const closedPositions = await getCachedClosedPositions(holder.address);
         
         let winStreakLatest = 0;
         let loseStreakLatest = 0;
