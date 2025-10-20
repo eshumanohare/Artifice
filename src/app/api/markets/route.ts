@@ -37,7 +37,9 @@ export async function GET(request: NextRequest) {
       image: market.image,
       volume24hr: market.volume24hr,
       liquidity: market.liquidity,
-      outcomePrices: market.outcomePrices,
+      outcomePrices: typeof market.outcomePrices === 'string' 
+        ? JSON.parse(market.outcomePrices) 
+        : market.outcomePrices,
       endDate: market.endDate,
       clobTokenIds: market.clobTokenIds,
       conditionId: market.conditionId,

@@ -17,6 +17,11 @@ export default function MarketCard({ market }: MarketCardProps) {
     }).format(value);
   };
 
+  // Format cents (for outcome prices)
+  const formatCents = (cents: number) => {
+    return `${cents.toFixed(1)}¢`;
+  };
+
   // Format percentage
   const formatPercentage = (value: number) => {
     return `${(value * 100).toFixed(1)}%`;
@@ -54,8 +59,10 @@ export default function MarketCard({ market }: MarketCardProps) {
   };
 
   const { formattedDate, timeRemaining } = formatDateAndTimeRemaining(market.endDate);
-  const yesPrice = market.outcomePrices[0] || 0;
-  const noPrice = market.outcomePrices[1] || 0;
+  
+  // Parse outcome prices and convert from dollars to cents
+  const yesPrice = parseFloat(String(market.outcomePrices[0] || '0')) * 100;
+  const noPrice = parseFloat(String(market.outcomePrices[1] || '0')) * 100;
 
   return (
     <div className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
@@ -86,19 +93,19 @@ export default function MarketCard({ market }: MarketCardProps) {
           <div className="text-center p-3 bg-green-50 rounded-lg">
             <p className="text-sm text-green-700 mb-1">YES</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrency(yesPrice)}
+              {formatCents(yesPrice)}
             </p>
             <p className="text-sm text-green-500">
-              {formatPercentage(yesPrice)}
+              {formatPercentage(yesPrice / 100)}
             </p>
           </div>
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-red-700 mb-1">NO</p>
             <p className="text-xl font-bold text-red-600">
-              {formatCurrency(noPrice)}
+              {formatCents(noPrice)}
             </p>
             <p className="text-sm text-red-500">
-              {formatPercentage(noPrice)}
+              {formatPercentage(noPrice / 100)}
             </p>
           </div>
         </div>
