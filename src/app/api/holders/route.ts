@@ -13,10 +13,16 @@ type Holder = {
   cashPnlUsd?: number;
   percentPnl?: number;
   percentRealizedPnl?: number;
-  winStreak?: number; // number of consecutive winning positions
+  winStreakLatest?: number;
+  loseStreakLatest?: number;
 };
 
 const shorten = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
+// In-memory cache for closed positions (since they don't change)
+const closedPositionsCache = new Map<string, any[]>();
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+const cacheTimestamps = new Map<string, number>();
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,19 +82,57 @@ export async function GET(request: NextRequest) {
         // Prefer same side if outcomeIndex is available
         const sideIndex = holder.side === 'YES' ? 0 : 1;
         const match = relevant.find((p: any) => p.outcomeIndex === sideIndex) || relevant[0];
+        
+        let avgPriceCents: number | undefined;
+        let cashPnlUsd: number | undefined;
+        let percentPnl: number | undefined;
+        let percentRealizedPnl: number | undefined;
+        
         if (match) {
-          const avgPriceCents = typeof match.avgPrice === 'number' ? match.avgPrice * 100 : undefined;
-          const cashPnlUsd = typeof match.cashPnl === 'number' ? match.cashPnl : undefined;
-          const percentPnl = typeof match.percentPnl === 'number' ? match.percentPnl : undefined;
-          const percentRealizedPnl = typeof match.percentRealizedPnl === 'number' ? match.percentRealizedPnl : undefined;
-          // Compute a simple win streak: count consecutive positions with percentPnl > 0 from the start of the array
-          let winStreak = 0;
-          for (const p of positions) {
-            if (typeof p.percentPnl === 'number' && p.percentPnl > 0) winStreak += 1; else break;
-          }
-          return { ...holder, avgPriceCents, cashPnlUsd, percentPnl, percentRealizedPnl, winStreak };
+          avgPriceCents = typeof match.avgPrice === 'number' ? match.avgPrice * 100 : undefined;
+          cashPnlUsd = typeof match.cashPnl === 'number' ? match.cashPnl : undefined;
+          percentPnl = typeof match.percentPnl === 'number' ? match.percentPnl : undefined;
+          percentRealizedPnl = typeof match.percentRealizedPnl === 'number' ? match.percentRealizedPnl : undefined;
         }
-        return holder;
+        
+        // Fetch closed positions to compute win/lose streaks (with caching)
+        let closedPositions: any[] = [];
+        const cacheKey = holder.address.toLowerCase();
+        const now = Date.now();
+        const cachedTime = cacheTimestamps.get(cacheKey);
+        
+        // Check cache first
+        if (closedPositionsCache.has(cacheKey) && cachedTime && (now - cachedTime < CACHE_TTL)) {
+          closedPositions = closedPositionsCache.get(cacheKey) || [];
+        } else {
+          // Fetch all closed positions (no limit, since they don't change)
+          const closedRes = await fetch(`https://data-api.polymarket.com/closed-positions?user=${holder.address}`, { next: { revalidate: 86400 } });
+          if (closedRes.ok) {
+            closedPositions = await closedRes.json();
+            if (Array.isArray(closedPositions)) {
+              closedPositionsCache.set(cacheKey, closedPositions);
+              cacheTimestamps.set(cacheKey, now);
+            }
+          }
+        }
+        
+        let winStreakLatest = 0;
+        let loseStreakLatest = 0;
+        
+        if (Array.isArray(closedPositions) && closedPositions.length > 0) {
+          // Compute latest win streak: consecutive realizedPnl > 0 from start (breaks on first non-win)
+          for (const cp of closedPositions) {
+            if (typeof cp.realizedPnl === 'number' && cp.realizedPnl > 0) winStreakLatest += 1;
+            else break;
+          }
+          // Compute latest lose streak: consecutive realizedPnl < 0 from start (breaks on first non-loss)
+          for (const cp of closedPositions) {
+            if (typeof cp.realizedPnl === 'number' && cp.realizedPnl < 0) loseStreakLatest += 1;
+            else break;
+          }
+        }
+        
+        return { ...holder, avgPriceCents, cashPnlUsd, percentPnl, percentRealizedPnl, winStreakLatest, loseStreakLatest };
       } catch {
         return holder;
       }

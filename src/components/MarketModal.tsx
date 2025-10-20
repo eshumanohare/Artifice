@@ -80,7 +80,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
       onClick={onClose}
     >
       <div
-        className="glass-card w-full max-w-7xl border border-blue-200/40 max-h-[85vh] overflow-y-auto"
+        className="glass-card w-full max-w-7xl border border-blue-200/40 max-h-[85vh] overflow-y-auto hide-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top: Market info rectangle */}
@@ -171,16 +171,21 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
                           ) : (
                             <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-sm">Y</div>
                           )}
-                          <div className="min-w-0">
+                          <div className="min-w-0 max-w-[200px]">
                             {profileUrl ? (
-                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</a>
+                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }} title={name}>{name}</a>
                             ) : (
-                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
+                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }} title={name}>{name}</div>
                             )}
                             <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
-                            {typeof (h as any).winStreak === 'number' && (
-                              <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">Win streak: {(h as any).winStreak}</div>
-                            )}
+                            <div className="mt-1 flex gap-2 flex-wrap">
+                              {typeof h.winStreakLatest === 'number' && h.winStreakLatest > 0 && (
+                                <div className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 whitespace-nowrap">🔥 {h.winStreakLatest}W Streak</div>
+                              )}
+                              {typeof h.loseStreakLatest === 'number' && h.loseStreakLatest > 0 && (
+                                <div className="inline-block text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 whitespace-nowrap">❄️ {h.loseStreakLatest}L Streak</div>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
@@ -222,16 +227,21 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
                           ) : (
                             <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-sm">N</div>
                           )}
-                          <div className="min-w-0">
+                          <div className="min-w-0 max-w-[200px]">
                             {profileUrl ? (
-                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</a>
+                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }} title={name}>{name}</a>
                             ) : (
-                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>{name}</div>
+                              <div className="text-base font-medium text-gray-900 truncate" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }} title={name}>{name}</div>
                             )}
                             <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
-                            {typeof (h as any).winStreak === 'number' && (
-                              <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">Win streak: {(h as any).winStreak}</div>
-                            )}
+                            <div className="mt-1 flex gap-2 flex-wrap">
+                              {typeof h.winStreakLatest === 'number' && h.winStreakLatest > 0 && (
+                                <div className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 whitespace-nowrap">🔥 {h.winStreakLatest}W Streak</div>
+                              )}
+                              {typeof h.loseStreakLatest === 'number' && h.loseStreakLatest > 0 && (
+                                <div className="inline-block text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 whitespace-nowrap">❄️ {h.loseStreakLatest}L Streak</div>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="text-right shrink-0">

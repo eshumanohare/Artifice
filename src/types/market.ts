@@ -38,4 +38,6 @@ export interface Holder {
   cashPnlUsd?: number;
   percentPnl?: number; // -100..+inf
   percentRealizedPnl?: number;
+  winStreakLatest?: number; // consecutive wins (realizedPnl > 0) from latest closed positions
+  loseStreakLatest?: number; // consecutive losses (realizedPnl < 0) from latest closed positions
 }

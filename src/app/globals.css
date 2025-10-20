@@ -46,3 +46,12 @@ body {
   border-radius: 16px;
   box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
 }
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
