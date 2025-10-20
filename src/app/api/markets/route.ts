@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
       question: market.question,
       description: market.description,
       image: market.image,
+      eventImage: market.events?.[0]?.image || market.image,
       volume24hr: market.volume24hr,
       liquidity: market.liquidity,
       outcomePrices: typeof market.outcomePrices === 'string' 

@@ -23,7 +23,7 @@ const shorten = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 // Cached function to fetch closed positions (persists across requests)
 const getCachedClosedPositions = unstable_cache(
   async (address: string) => {
-    const res = await fetch(`https://data-api.polymarket.com/closed-positions?user=${address}&limit=100`);
+    const res = await fetch(`https://data-api.polymarket.com/closed-positions?user=${address}`);
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];

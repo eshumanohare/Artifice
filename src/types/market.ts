@@ -3,6 +3,7 @@ export interface Market {
   question: string;
   description?: string;
   image?: string;
+  eventImage?: string;
   volume24hr: number;
   liquidity: number;
   outcomePrices: number[];

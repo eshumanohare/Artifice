@@ -66,10 +66,21 @@ export default function MarketCard({ market, onOpen }: MarketCardProps) {
   const noPrice = parseFloat(String(market.outcomePrices[1] || '0')) * 100;
 
   return (
-    <div onClick={onOpen} className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+    <div onClick={onOpen} className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+      {/* Event Image Banner */}
+      {market.eventImage && (
+        <div className="w-full h-40 overflow-hidden">
+          <img 
+            src={market.eventImage} 
+            alt={market.question} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        </div>
+      )}
+      
       <div className="p-6 space-y-4">
         {/* Market Question */}
-        <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+        <h3 className="text-lg font-semibold text-gray-900 leading-tight line-clamp-2">
           {market.question}
         </h3>
 
