@@ -43,7 +43,13 @@ export async function GET(request: NextRequest) {
       endDate: market.endDate,
       clobTokenIds: market.clobTokenIds,
       conditionId: market.conditionId,
-      slug: market.slug
+      slug: market.slug,
+      volume: market.volumeClob ?? market.volume,
+      volume1wk: market.volume1wkClob ?? market.volume1wk,
+      volume1mo: market.volume1moClob ?? market.volume1mo,
+      lastTradePrice: market.lastTradePrice,
+      bestAsk: market.bestAsk,
+      spread: market.spread
     }));
 
     return NextResponse.json(formattedMarkets);

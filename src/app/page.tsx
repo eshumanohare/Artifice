@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import MarketCard from '@/components/MarketCard';
+import MarketModal from '@/components/MarketModal';
 import { Market } from '@/types/market';
 
 export default function Home() {
   const [markets, setMarkets] = useState<Market[]>([]);
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export default function Home() {
         {!loading && !error && markets.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {markets.map((market) => (
-              <MarketCard key={market.id} market={market} />
+              <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
             ))}
           </div>
         )}
@@ -157,6 +159,9 @@ export default function Home() {
           </div>
         )}
       </div>
+      {selectedMarket && (
+        <MarketModal market={selectedMarket} onClose={() => setSelectedMarket(null)} />
+      )}
     </div>
   );
 }

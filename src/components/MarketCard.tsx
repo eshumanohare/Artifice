@@ -4,9 +4,10 @@ import { Market } from '@/types/market';
 
 interface MarketCardProps {
   market: Market;
+  onOpen?: () => void;
 }
 
-export default function MarketCard({ market }: MarketCardProps) {
+export default function MarketCard({ market, onOpen }: MarketCardProps) {
   // Format currency values
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -65,7 +66,7 @@ export default function MarketCard({ market }: MarketCardProps) {
   const noPrice = parseFloat(String(market.outcomePrices[1] || '0')) * 100;
 
   return (
-    <div className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+    <div onClick={onOpen} className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       <div className="p-6 space-y-4">
         {/* Market Question */}
         <h3 className="text-lg font-semibold text-gray-900 leading-tight">
