@@ -12,6 +12,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showLiveOrders, setShowLiveOrders] = useState(false);
 
   // Fetch markets function
   const fetchMarkets = async (search?: string) => {
@@ -63,6 +64,29 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4 sm:p-8 relative z-10">
+      {/* Live Orders Toggle Button - Fixed at top right */}
+      <button
+        onClick={() => setShowLiveOrders(!showLiveOrders)}
+        className="fixed top-6 right-6 z-50 glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
+        style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+            <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping" />
+          </div>
+          <span className="text-sm font-semibold text-blue-900">Live Orders</span>
+        </div>
+        <svg 
+          className={`w-5 h-5 text-blue-900 transition-transform duration-300 ${showLiveOrders ? 'rotate-180' : ''}`}
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -129,22 +153,12 @@ export default function Home() {
           </div>
         )}
 
-        {/* Markets Grid and Live Orders - Side by Side */}
+        {/* Markets Grid */}
         {!loading && !error && markets.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Markets Grid - Takes 2 columns */}
-            <div className="lg:col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {markets.map((market) => (
-                  <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
-                ))}
-              </div>
-            </div>
-
-            {/* Live Orders Feed - Takes 1 column */}
-            <div className="lg:col-span-1">
-              <LiveOrdersFeed />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {markets.map((market) => (
+              <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
+            ))}
           </div>
         )}
 
@@ -170,6 +184,26 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Live Orders Slide-in Panel */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
+          showLiveOrders ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="h-full overflow-y-auto p-6 pt-24">
+          <LiveOrdersFeed />
+        </div>
+      </div>
+
+      {/* Overlay when panel is open */}
+      {showLiveOrders && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 transition-opacity duration-300"
+          onClick={() => setShowLiveOrders(false)}
+        />
+      )}
+
       {selectedMarket && (
         <MarketModal market={selectedMarket} onClose={() => setSelectedMarket(null)} />
       )}

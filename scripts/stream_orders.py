@@ -140,9 +140,9 @@ async def stream_orders():
                     # Add new orders to buffer
                     orders_buffer.extend(new_orders)
                     
-                    # Keep only latest 50 orders (by timestamp which is when we received them)
+                    # Keep only latest 10 orders (by timestamp which is when we received them)
                     orders_buffer.sort(key=lambda x: x['timestamp'], reverse=True)
-                    orders_buffer = orders_buffer[:50]
+                    orders_buffer = orders_buffer[:10]
                     
                     # Write to file
                     with open(OUTPUT_FILE, 'w') as f:

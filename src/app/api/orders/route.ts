@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     
     console.log(`✅ Loaded ${data.orders?.length || 0} orders from file (last update: ${new Date(data.lastUpdate).toLocaleString()})`);
     
-    // Return top 20 orders
-    const orders = data.orders?.slice(0, 20) || [];
+    // Return top 10 orders
+    const orders = data.orders?.slice(0, 10) || [];
     
     return NextResponse.json({ 
       orders,
