@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cacheMarkets } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     const markets = await response.json();
+    console.log(`📥 Fetched ${Array.isArray(markets) ? markets.length : 0} markets from Polymarket API`);
 
     // Format the response to include only necessary fields
     const formattedMarkets = markets.map((market: any) => ({
@@ -52,6 +54,15 @@ export async function GET(request: NextRequest) {
       bestAsk: market.bestAsk,
       spread: market.spread
     }));
+
+    // Cache the markets data for use by other API routes
+    if (!search) {
+      // Only cache when not searching (to cache the main market list)
+      console.log(`💾 Caching ${formattedMarkets.length} markets...`);
+      cacheMarkets(formattedMarkets);
+    } else {
+      console.log(`🔍 Search query detected, skipping cache for: ${search}`);
+    }
 
     return NextResponse.json(formattedMarkets);
   } catch (error) {

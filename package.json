@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "stream": "python3 scripts/stream_orders.py",
+    "setup": "pip3 install -r requirements.txt"
   },
   "dependencies": {
     "react": "19.1.0",

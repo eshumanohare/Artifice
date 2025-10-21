@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import MarketCard from '@/components/MarketCard';
 import MarketModal from '@/components/MarketModal';
+import LiveOrdersFeed from '@/components/LiveOrdersFeed';
 import { Market } from '@/types/market';
 
 export default function Home() {
@@ -61,7 +62,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-8">
+    <div className="min-h-screen p-4 sm:p-8 relative z-10">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -128,12 +129,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* Markets Grid */}
+        {/* Markets Grid and Live Orders - Side by Side */}
         {!loading && !error && markets.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {markets.map((market) => (
-              <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Markets Grid - Takes 2 columns */}
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {markets.map((market) => (
+                  <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
+                ))}
+              </div>
+            </div>
+
+            {/* Live Orders Feed - Takes 1 column */}
+            <div className="lg:col-span-1">
+              <LiveOrdersFeed />
+            </div>
           </div>
         )}
 

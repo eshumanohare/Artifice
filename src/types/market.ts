@@ -42,3 +42,18 @@ export interface Holder {
   winStreakLatest?: number; // consecutive wins (realizedPnl > 0) from latest closed positions
   loseStreakLatest?: number; // consecutive losses (realizedPnl < 0) from latest closed positions
 }
+
+export interface Order {
+  orderHash: string;
+  maker: string;
+  taker: string;
+  makerAssetId: string;
+  takerAssetId: string;
+  makerAmountFilled: string;
+  takerAmountFilled: string;
+  fee: string;
+  timestamp: number;
+  blockNumber: number;
+  side: 'BUY' | 'SELL'; // BUY when makerAssetId = 0, SELL otherwise
+  price: number; // calculated price in cents
+}
