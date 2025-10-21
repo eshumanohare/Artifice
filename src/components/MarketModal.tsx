@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Holder, Market } from '@/types/market';
+import MarketChartPanel from './MarketChartPanel';
 
 interface MarketModalProps {
   market: Market;
@@ -17,6 +18,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
   const [holders, setHolders] = useState<HoldersResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'holders'>('overview');
 
   const yesPrice = useMemo(() => {
     return (parseFloat(String(market.outcomePrices?.[0] ?? '0')) || 0) * 100;
@@ -166,49 +168,96 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
           </div>
         </div>
 
-        {/* Middle: Merged YES/NO price bar, then metrics grid, then holders */}
+        {/* Tab Navigation */}
+        <div className="border-b border-blue-100/40" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+          <div className="flex space-x-1 px-6">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('charts')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'charts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Charts
+            </button>
+            <button
+              onClick={() => setActiveTab('holders')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'holders'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Holders
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
         <div className="p-6" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-          {/* Merged YES/NO price block */}
-          <div className="glass-card border border-blue-100/60 overflow-hidden mb-8">
-            <div className="flex items-stretch">
-              <div className="flex-1 bg-green-500/30 p-5 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-xs text-green-800">YES</div>
-                  <div className="text-2xl font-semibold text-green-900">{(yesPrice).toFixed(1)}¢</div>
+          {activeTab === 'overview' && (
+            <>
+              {/* Merged YES/NO price block */}
+              <div className="glass-card border border-blue-100/60 overflow-hidden mb-8">
+                <div className="flex items-stretch">
+                  <div className="flex-1 bg-green-500/30 p-5 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-xs text-green-800">YES</div>
+                      <div className="text-2xl font-semibold text-green-900">{(yesPrice).toFixed(1)}¢</div>
+                    </div>
+                  </div>
+                  <div className="w-px bg-white/60" />
+                  <div className="flex-1 bg-red-500/30 p-5 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-xs text-red-800">NO</div>
+                      <div className="text-2xl font-semibold text-red-900">{(noPrice).toFixed(1)}¢</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="w-px bg-white/60" />
-              <div className="flex-1 bg-red-500/30 p-5 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-xs text-red-800">NO</div>
-                  <div className="text-2xl font-semibold text-red-900">{(noPrice).toFixed(1)}¢</div>
+
+              {/* Metrics grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs text-gray-600">24h Volume</div>
+                  <div className="text-lg font-semibold text-blue-700">{formatCurrency(market.volume24hr)}</div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs text-gray-600">Liquidity</div>
+                  <div className="text-lg font-semibold text-green-700">{formatCurrency(market.liquidity)}</div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs text-gray-600">Last Trade</div>
+                  <div className="text-lg font-semibold text-gray-900">{market.lastTradePrice ? `${(market.lastTradePrice * 100).toFixed(1)}¢` : '—'}</div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs text-gray-600">1w Volume</div>
+                  <div className="text-lg font-semibold text-blue-700">{market.volume1wk ? formatCurrency(market.volume1wk) : '—'}</div>
                 </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
 
-          {/* Metrics grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-            <div className="glass-card p-4 text-center">
-              <div className="text-xs text-gray-600">24h Volume</div>
-              <div className="text-lg font-semibold text-blue-700">{formatCurrency(market.volume24hr)}</div>
-            </div>
-            <div className="glass-card p-4 text-center">
-              <div className="text-xs text-gray-600">Liquidity</div>
-              <div className="text-lg font-semibold text-green-700">{formatCurrency(market.liquidity)}</div>
-            </div>
-            <div className="glass-card p-4 text-center">
-              <div className="text-xs text-gray-600">Last Trade</div>
-              <div className="text-lg font-semibold text-gray-900">{market.lastTradePrice ? `${(market.lastTradePrice * 100).toFixed(1)}¢` : '—'}</div>
-            </div>
-            <div className="glass-card p-4 text-center">
-              <div className="text-xs text-gray-600">1w Volume</div>
-              <div className="text-lg font-semibold text-blue-700">{market.volume1wk ? formatCurrency(market.volume1wk) : '—'}</div>
-            </div>
-          </div>
+          {activeTab === 'charts' && (
+            <MarketChartPanel 
+              marketId={market.conditionId} 
+              marketQuestion={market.question}
+            />
+          )}
 
-          {/* Holders: two spacious columns */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {activeTab === 'holders' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* YES holders */}
             <div className="glass-card p-6">
               <h3 className="text-lg font-semibold text-green-700 mb-5">TOP YES Holders</h3>
@@ -326,7 +375,8 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
