@@ -5,7 +5,8 @@ import { format } from 'date-fns';
 
 interface WhaleActivity {
   orderHash: string;
-  tokenId: string;
+  makerAssetId: string;
+  takerAssetId: string;
   side: string;
   volumeUsd: number;
   price: number;
@@ -34,19 +35,19 @@ export default function WhaleActivityFeed() {
     const newWhale = newWhaleQueueRef.current.shift()!;
 
     setWhaleActivity(prevWhales => {
-      // Add new whale at the top
-      const updatedWhales = [newWhale, ...prevWhales];
+      // Add new whale at the bottom (oldest first)
+      const updatedWhales = [...prevWhales, newWhale];
 
-      // If we exceed max, mark the last one for removal
+      // If we exceed max, mark the first one for removal (oldest)
       if (updatedWhales.length > MAX_WHALES) {
-        const whaleToRemove = updatedWhales[updatedWhales.length - 1];
+        const whaleToRemove = updatedWhales[0];
         const removeId = `${whaleToRemove.orderHash}-${whaleToRemove.timestamp}`;
         
         setRemovingWhaleId(removeId);
         
         // Remove it after animation
         setTimeout(() => {
-          setWhaleActivity(current => current.slice(0, MAX_WHALES));
+          setWhaleActivity(current => current.slice(1));
           setRemovingWhaleId(null);
           processingRef.current = false;
           processQueue(); // Process next in queue
@@ -68,20 +69,13 @@ export default function WhaleActivityFeed() {
 
     const fetchWhaleActivity = async () => {
       try {
-        const res = await fetch('/api/orders');
+        const res = await fetch('/api/whales');
         if (!res.ok) throw new Error('Failed to fetch whale activity');
         const data = await res.json();
         
-        if (isMounted && Array.isArray(data)) {
-          // Filter for large orders (whales) - orders with volume > $10,000
-          const whaleThreshold = 10000;
-          const whaleOrders = data.filter((order: any) => {
-            const volume = order.volumeUsd || 0;
-            return volume > whaleThreshold;
-          });
-          
+        if (isMounted && Array.isArray(data.whales)) {
           // Find truly new whales (not seen before)
-          const newWhales = whaleOrders.filter((whale: WhaleActivity) => {
+          const newWhales = data.whales.filter((whale: WhaleActivity) => {
             const whaleId = `${whale.orderHash}-${whale.timestamp}`;
             if (seenWhaleIdsRef.current.has(whaleId)) {
               return false;
@@ -135,6 +129,16 @@ export default function WhaleActivityFeed() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  const getPolygonScanUrl = (address: string) => {
+    return `https://polygonscan.com/address/${address}`;
+  };
+
+  const getTraderAddress = (whale: WhaleActivity) => {
+    // For BUY orders: maker is the buyer
+    // For SELL orders: taker is the seller
+    return whale.side === 'BUY' ? whale.maker : whale.taker;
+  };
+
   return (
     <div style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
       {/* Header */}
@@ -162,11 +166,7 @@ export default function WhaleActivityFeed() {
               const isBuy = whale.side === 'BUY';
               const whaleId = `${whale.orderHash}-${whale.timestamp}`;
               const isRemoving = removingWhaleId === whaleId;
-              const isBottomMost = idx === whaleActivity.length - 1 && whaleActivity.length === MAX_WHALES;
-              
-              // Only blur the bottom-most whale when at capacity
-              const blurAmount = isBottomMost ? 2.5 : 0;
-              const opacityAmount = isBottomMost ? 0.4 : 1;
+              const isTopMost = idx === 0 && whaleActivity.length === MAX_WHALES;
               
               return (
                 <div
@@ -180,8 +180,7 @@ export default function WhaleActivityFeed() {
                     ${isRemoving ? 'animate-fade-blur-down' : 'animate-slide-from-top'}
                   `}
                   style={{
-                    filter: `blur(${blurAmount}px)`,
-                    opacity: isRemoving ? 0 : opacityAmount,
+                    opacity: isRemoving ? 0 : 1,
                     transition: isRemoving ? 'all 0.8s ease-out' : 'all 0.7s ease-out',
                     transform: isRemoving ? 'translateY(40px) scale(0.95)' : 'translateY(0)',
                   }}
@@ -219,15 +218,25 @@ export default function WhaleActivityFeed() {
                     {/* Market Info */}
                     <div className="text-sm text-gray-700">
                       <div className="font-mono text-xs text-gray-500 mb-1">
-                        Market: {whale.tokenId.slice(0, 12)}...
+                        Market: {whale.takerAssetId.slice(0, 12)}...
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">
-                          {shorten(whale.maker)} → {shorten(whale.taker)}
-                        </span>
-                        <span className="text-gray-400">
-                          {whale.orderHash.slice(0, 8)}...
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500">
+                            {shorten(whale.maker)} → {shorten(whale.taker)}
+                          </span>
+                          <span className="text-blue-600 font-medium">
+                            ({whale.side === 'BUY' ? 'Buyer' : 'Seller'})
+                          </span>
+                        </div>
+                        <a 
+                          href={getPolygonScanUrl(getTraderAddress(whale))}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {shorten(getTraderAddress(whale))}
+                        </a>
                       </div>
                     </div>
                   </div>

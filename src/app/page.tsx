@@ -67,6 +67,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4 sm:p-8 relative z-10">
+      {/* Background Math Equations */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-20 left-10 text-6xl text-blue-100/20 font-mono transform -rotate-12">P = S × (1 + r)^t</div>
+        <div className="absolute top-40 right-20 text-5xl text-green-100/20 font-mono transform rotate-6">ROI = (P₁ - P₀) / P₀</div>
+        <div className="absolute top-80 left-20 text-4xl text-purple-100/20 font-mono transform rotate-3">α = Rₚ - Rₘ</div>
+        <div className="absolute top-60 right-10 text-5xl text-orange-100/20 font-mono transform -rotate-6">β = Cov(Rₚ, Rₘ) / Var(Rₘ)</div>
+        <div className="absolute bottom-40 left-16 text-4xl text-red-100/20 font-mono transform rotate-12">Sharpe = (Rₚ - Rf) / σₚ</div>
+        <div className="absolute bottom-60 right-24 text-6xl text-indigo-100/20 font-mono transform -rotate-3">VaR = μ - z × σ</div>
+        <div className="absolute top-32 left-1/2 text-3xl text-cyan-100/20 font-mono transform rotate-9">Δ = ∂P/∂S</div>
+        <div className="absolute bottom-80 right-16 text-4xl text-pink-100/20 font-mono transform -rotate-9">γ = ∂²P/∂S²</div>
+        <div className="absolute top-96 right-1/3 text-5xl text-yellow-100/20 font-mono transform rotate-15">θ = ∂P/∂t</div>
+        <div className="absolute bottom-32 left-1/3 text-4xl text-teal-100/20 font-mono transform -rotate-12">ρ = ∂P/∂r</div>
+      </div>
       {/* Top Right Buttons */}
       <div className="fixed top-6 right-6 z-50 flex gap-3">
 
@@ -124,8 +137,28 @@ export default function Home() {
             Artifice
           </h1>
           <p className="text-lg text-blue-600 font-medium mb-4" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-            Top Polymarket Markets by 24h Volume
+            Copy Trade from Top Polymarket Holders
           </p>
+          
+          {/* Feature Tags */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="glass-card px-4 py-2 flex items-center gap-2">
+              <span className="text-green-500">📈</span>
+              <span className="text-sm font-semibold text-gray-800">Copy Top Traders</span>
+            </div>
+            <div className="glass-card px-4 py-2 flex items-center gap-2">
+              <span className="text-blue-500">⚡</span>
+              <span className="text-sm font-semibold text-gray-800">Real-time Orders</span>
+            </div>
+            <div className="glass-card px-4 py-2 flex items-center gap-2">
+              <span className="text-purple-500">🎯</span>
+              <span className="text-sm font-semibold text-gray-800">Smart Analytics</span>
+            </div>
+            <div className="glass-card px-4 py-2 flex items-center gap-2">
+              <span className="text-orange-500">🐋</span>
+              <span className="text-sm font-semibold text-gray-800">Whale Tracking</span>
+            </div>
+          </div>
           
           {/* HyperSync Branding */}
           <div className="flex items-center justify-center gap-3">

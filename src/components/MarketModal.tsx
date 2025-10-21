@@ -101,7 +101,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+      className="fixed inset-0 z-50 bg-blue-500/30 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
     >
       <div
@@ -169,26 +169,26 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
 
         {/* Tab Navigation */}
         <div className="border-b border-blue-100/40" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-          <div className="flex space-x-1 px-6">
+          <div className="flex space-x-2 px-6 py-2">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-6 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${
                 activeTab === 'overview'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25 border-2 border-blue-500'
+                  : 'bg-white/50 text-gray-600 hover:bg-blue-50 hover:text-blue-700 border-2 border-transparent hover:border-blue-200'
               }`}
             >
-              Overview
+              📊 Overview
             </button>
             <button
               onClick={() => setActiveTab('holders')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-6 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${
                 activeTab === 'holders'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25 border-2 border-blue-500'
+                  : 'bg-white/50 text-gray-600 hover:bg-blue-50 hover:text-blue-700 border-2 border-transparent hover:border-blue-200'
               }`}
             >
-              Holders
+              👥 Holders
             </button>
           </div>
         </div>
