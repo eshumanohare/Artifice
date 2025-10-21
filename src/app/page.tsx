@@ -1,14 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import MarketCard from '@/components/MarketCard';
+import MarketModal from '@/components/MarketModal';
+import LiveOrdersFeed from '@/components/LiveOrdersFeed';
+import WhaleActivityFeed from '@/components/WhaleActivityFeed';
 import { Market } from '@/types/market';
 
 export default function Home() {
   const [markets, setMarkets] = useState<Market[]>([]);
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showLiveOrders, setShowLiveOrders] = useState(false);
+  const [showWhaleActivity, setShowWhaleActivity] = useState(false);
 
   // Fetch markets function
   const fetchMarkets = async (search?: string) => {
@@ -59,16 +66,102 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-8">
+    <div className="min-h-screen p-4 sm:p-8 relative z-10">
+      {/* Top Right Buttons */}
+      <div className="fixed top-6 right-6 z-50 flex gap-3">
+
+        {/* Whale Activity Toggle Button */}
+        <button
+          onClick={() => setShowWhaleActivity(!showWhaleActivity)}
+          className="glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
+        >
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-2.5 h-2.5 bg-orange-500 rounded-full animate-pulse" />
+              <div className="absolute inset-0 w-2.5 h-2.5 bg-orange-500 rounded-full animate-ping" />
+            </div>
+            <span className="text-sm font-semibold text-blue-900">🐋 Whales</span>
+          </div>
+          <svg 
+            className={`w-5 h-5 text-blue-900 transition-transform duration-300 ${showWhaleActivity ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Live Orders Toggle Button */}
+        <button
+          onClick={() => setShowLiveOrders(!showLiveOrders)}
+          className="glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
+        >
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+              <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping" />
+            </div>
+            <span className="text-sm font-semibold text-blue-900">Live Orders</span>
+          </div>
+          <svg 
+            className={`w-5 h-5 text-blue-900 transition-transform duration-300 ${showLiveOrders ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl sm:text-8xl font-bold text-blue-700 mb-4 tracking-tight" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-            Artifice
+          <h1 className="text-8xl sm:text-9xl font-bold mb-4 tracking-tight inverted-logo">
+            artifice
           </h1>
-          <p className="text-lg text-blue-600 font-medium" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-            Top Polymarket Markets by 24h Volume
+          <p className="text-2xl sm:text-3xl font-bold mb-4 tracking-wide inverted-logo">
+            Copy Trade from Top Polymarket Holders
           </p>
+          
+          {/* Feature Tags */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-green-400 glow-colored">📈</span>
+              <span className="text-sm font-bold text-white glow-text">Copy Top Traders</span>
+            </div>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-blue-400 glow-colored">⚡</span>
+              <span className="text-sm font-bold text-white glow-text">Real-time Orders</span>
+            </div>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-purple-400 glow-colored">🎯</span>
+              <span className="text-sm font-bold text-white glow-text">Smart Analytics</span>
+            </div>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-orange-400 glow-colored">🐋</span>
+              <span className="text-sm font-bold text-white glow-text">Whale Tracking</span>
+            </div>
+          </div>
+          
+          {/* HyperSync Branding */}
+          <div className="flex items-center justify-center">
+            <a 
+              href="https://envio.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/60 transition-all duration-200"
+            >
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">H</span>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white glow-text">Powered by Envio HyperSync</div>
+                <div className="text-xs font-bold text-gray-300 glow-text">Ultra-fast blockchain data layer</div>
+              </div>
+            </a>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -128,9 +221,9 @@ export default function Home() {
 
         {/* Markets Grid */}
         {!loading && !error && markets.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {markets.map((market) => (
-              <MarketCard key={market.id} market={market} />
+              <MarketCard key={market.id} market={market} onOpen={() => setSelectedMarket(market)} />
             ))}
           </div>
         )}
@@ -157,6 +250,43 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Live Orders Slide-in Panel */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
+          showLiveOrders ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="h-full overflow-y-auto p-6 pt-24">
+          <LiveOrdersFeed />
+        </div>
+      </div>
+
+      {/* Whale Activity Slide-in Panel */}
+      <div 
+        className={`fixed top-0 left-0 h-full w-full sm:w-[450px] bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
+          showWhaleActivity ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-full overflow-y-auto p-6 pt-24">
+          <WhaleActivityFeed />
+        </div>
+      </div>
+
+      {/* Overlay when panels are open */}
+      {(showLiveOrders || showWhaleActivity) && (
+        <div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 transition-opacity duration-300"
+          onClick={() => {
+            setShowLiveOrders(false);
+            setShowWhaleActivity(false);
+          }}
+        />
+      )}
+
+      {selectedMarket && (
+        <MarketModal market={selectedMarket} onClose={() => setSelectedMarket(null)} />
+      )}
     </div>
   );
 }

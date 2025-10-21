@@ -1,3 +1,11 @@
 .cursor
 node_modules
 .next
+.cache
+# Python virtual environment
+env/
+*.pyc
+__pycache__/
+
+# Live orders cache
+.cache/

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cacheMarkets } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
       closed: 'false',
       order: 'volume24hr',
       ascending: 'false',
-      limit: '10'
+      limit: '15'
     });
 
     // Add search parameter if provided
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     const markets = await response.json();
+    console.log(`📥 Fetched ${Array.isArray(markets) ? markets.length : 0} markets from Polymarket API`);
 
     // Format the response to include only necessary fields
     const formattedMarkets = markets.map((market: any) => ({
@@ -35,6 +37,7 @@ export async function GET(request: NextRequest) {
       question: market.question,
       description: market.description,
       image: market.image,
+      eventImage: market.events?.[0]?.image || market.image,
       volume24hr: market.volume24hr,
       liquidity: market.liquidity,
       outcomePrices: typeof market.outcomePrices === 'string' 
@@ -43,8 +46,23 @@ export async function GET(request: NextRequest) {
       endDate: market.endDate,
       clobTokenIds: market.clobTokenIds,
       conditionId: market.conditionId,
-      slug: market.slug
+      slug: market.slug,
+      volume: market.volumeClob ?? market.volume,
+      volume1wk: market.volume1wkClob ?? market.volume1wk,
+      volume1mo: market.volume1moClob ?? market.volume1mo,
+      lastTradePrice: market.lastTradePrice,
+      bestAsk: market.bestAsk,
+      spread: market.spread
     }));
+
+    // Cache the markets data for use by other API routes
+    if (!search) {
+      // Only cache when not searching (to cache the main market list)
+      console.log(`💾 Caching ${formattedMarkets.length} markets...`);
+      cacheMarkets(formattedMarkets);
+    } else {
+      console.log(`🔍 Search query detected, skipping cache for: ${search}`);
+    }
 
     return NextResponse.json(formattedMarkets);
   } catch (error) {

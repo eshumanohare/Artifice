@@ -1,48 +1,301 @@
 @import "tailwindcss";
 
 :root {
-  --background: #e0f2fe;
+  --background: #dbeafe;
   --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-geist);
   --font-geist: var(--font-geist);
 }
 
 body {
-  background: radial-gradient(circle at 20% 30%, rgba(147, 197, 253, 0.4), transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.3), transparent 50%),
-              radial-gradient(circle at 40% 80%, rgba(96, 165, 250, 0.3), transparent 50%),
-              radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.25), transparent 40%),
-              radial-gradient(circle at 85% 85%, rgba(30, 58, 138, 0.2), transparent 35%),
-              radial-gradient(circle at 60% 20%, rgba(30, 58, 138, 0.15), transparent 30%),
-              radial-gradient(circle at 10% 60%, rgba(30, 58, 138, 0.18), transparent 35%),
-              radial-gradient(circle at 75% 10%, rgba(30, 58, 138, 0.22), transparent 30%),
-              radial-gradient(circle at 90% 40%, rgba(30, 58, 138, 0.16), transparent 32%),
-              radial-gradient(circle at 5% 85%, rgba(30, 58, 138, 0.14), transparent 28%),
-              radial-gradient(circle at 50% 5%, rgba(30, 58, 138, 0.12), transparent 25%),
-              #e0f2fe;
+  background: url('/dazzle-bg-2000px.png') center/cover no-repeat fixed;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background overlay - no blur for crisp dazzle pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/dazzle-bg-2000px.png') center/cover no-repeat fixed;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Semi-transparent overlay for better text readability */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Glassmorphism utility classes */
 .glass-card {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
 .glass-search {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 16px;
   box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
 }
+
+/* Glass text effect - individual characters appear glass-like */
+.glass-heading {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(190, 227, 255, 0.9), rgba(147, 197, 253, 0.85));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(96, 165, 250, 0.5)) 
+          drop-shadow(0 0 30px rgba(190, 227, 255, 0.4))
+          drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+  position: relative;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Live Orders Panel Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+    filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes fadeBlurDown {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    filter: blur(1px);
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(40px) scale(0.95);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s ease-out;
+}
+
+.animate-slide-from-top {
+  animation: slideFromTop 0.5s ease-out;
+}
+
+.animate-fade-blur-down {
+  animation: fadeBlurDown 0.8s ease-out forwards;
+}
+
+/* Blur fade effect for last order */
+.blur-fade {
+  position: relative;
+  opacity: 0.6;
+  filter: blur(1.5px);
+  transition: all 0.3s ease;
+}
+
+.blur-fade:hover {
+  opacity: 0.9;
+  filter: blur(0.5px);
+}
+
+/* Pulsing animation for live indicator */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Order card hover effect */
+.order-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Floating animations for background equations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatDelayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-slow {
+  animation: floatSlow 10s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+/* Geometric Pattern Animations */
+@keyframes patternShift {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(10px) translateY(-5px); }
+  50% { transform: translateX(0) translateY(-10px); }
+  75% { transform: translateX(-10px) translateY(-5px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes patternRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes patternScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Apply subtle animations to the geometric pattern */
+.geometric-pattern {
+  animation: patternShift 20s ease-in-out infinite;
+}
+
+.geometric-overlay {
+  animation: patternRotate 60s linear infinite;
+}
+
+.geometric-accent {
+  animation: patternScale 15s ease-in-out infinite;
+}
+
+/* Inverted logo effect - white in black regions, black in white regions */
+.inverted-logo {
+  color: white;
+  mix-blend-mode: difference;
+  font-weight: bold;
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+/* Alternative approach using text-shadow for better compatibility */
+.inverted-logo-alt {
+  color: transparent;
+  background: linear-gradient(45deg, white, black);
+  -webkit-background-clip: text;
+  background-clip: text;
+  mix-blend-mode: difference;
+  font-weight: bold;
+  position: relative;
+  z-index: 10;
+}
+
+/* Glow effect for tags and other content */
+.glow-text {
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 16px rgba(255, 255, 255, 0.6),
+    0 0 24px rgba(255, 255, 255, 0.4),
+    0 0 32px rgba(255, 255, 255, 0.2);
+}
+
+/* Glow effect for colored elements */
+.glow-colored {
+  filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 16px currentColor) drop-shadow(0 0 24px currentColor);
+}
+
+

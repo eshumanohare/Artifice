@@ -3,6 +3,7 @@ export interface Market {
   question: string;
   description?: string;
   image?: string;
+  eventImage?: string;
   volume24hr: number;
   liquidity: number;
   outcomePrices: number[];
@@ -10,9 +11,49 @@ export interface Market {
   clobTokenIds: string[];
   conditionId: string;
   slug: string;
+  volume?: number;
+  volume1wk?: number;
+  volume1mo?: number;
+  lastTradePrice?: number;
+  bestAsk?: number[] | number;
+  spread?: number;
 }
 
 export interface MarketResponse {
   markets: Market[];
   error?: string;
+}
+
+export type HolderSide = 'YES' | 'NO';
+
+export interface Holder {
+  address: string;
+  addressShort: string;
+  shares: number;
+  usdValue: number;
+  side: HolderSide;
+  displayName?: string;
+  profileImage?: string;
+  tokenId?: string;
+  avgPriceCents?: number; // average entry price in cents if available
+  cashPnlUsd?: number;
+  percentPnl?: number; // -100..+inf
+  percentRealizedPnl?: number;
+  winStreakLatest?: number; // consecutive wins (realizedPnl > 0) from latest closed positions
+  loseStreakLatest?: number; // consecutive losses (realizedPnl < 0) from latest closed positions
+}
+
+export interface Order {
+  orderHash: string;
+  maker: string;
+  taker: string;
+  makerAssetId: string;
+  takerAssetId: string;
+  makerAmountFilled: string;
+  takerAmountFilled: string;
+  fee: string;
+  timestamp: number;
+  blockNumber: number;
+  side: 'BUY' | 'SELL'; // BUY when makerAssetId = 0, SELL otherwise
+  price: number; // calculated price in cents
 }

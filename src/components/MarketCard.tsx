@@ -4,9 +4,45 @@ import { Market } from '@/types/market';
 
 interface MarketCardProps {
   market: Market;
+  onOpen?: () => void;
 }
 
-export default function MarketCard({ market }: MarketCardProps) {
+export default function MarketCard({ market, onOpen }: MarketCardProps) {
+  // Mock sentiment data - in a real app, this would come from analytics API
+  const getSentimentIndicators = () => {
+    // Simulate sentiment based on volume and price movement
+    const volume = market.volume24hr;
+    const liquidity = market.liquidity;
+    const volumeLiquidityRatio = volume / liquidity;
+    
+    const indicators = [];
+    
+    // High volume indicator
+    if (volume > 100000) {
+      indicators.push({ emoji: '🔥', label: 'Hot', color: 'bg-orange-100 text-orange-700 border-orange-200' });
+    }
+    
+    // High liquidity indicator
+    if (liquidity > 500000) {
+      indicators.push({ emoji: '💎', label: 'Liquid', color: 'bg-blue-100 text-blue-700 border-blue-200' });
+    }
+    
+    // High volume/liquidity ratio (unusual activity)
+    if (volumeLiquidityRatio > 0.5) {
+      indicators.push({ emoji: '⚡', label: 'Active', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' });
+    }
+    
+    // Price movement indicator (simplified)
+    const yesPrice = parseFloat(String(market.outcomePrices[0] || '0')) * 100;
+    if (yesPrice > 60) {
+      indicators.push({ emoji: '📈', label: 'Bullish', color: 'bg-green-100 text-green-700 border-green-200' });
+    } else if (yesPrice < 40) {
+      indicators.push({ emoji: '📉', label: 'Bearish', color: 'bg-red-100 text-red-700 border-red-200' });
+    }
+    
+    return indicators;
+  };
+
   // Format currency values
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -59,18 +95,47 @@ export default function MarketCard({ market }: MarketCardProps) {
   };
 
   const { formattedDate, timeRemaining } = formatDateAndTimeRemaining(market.endDate);
+  const sentimentIndicators = getSentimentIndicators();
   
   // Parse outcome prices and convert from dollars to cents
   const yesPrice = parseFloat(String(market.outcomePrices[0] || '0')) * 100;
   const noPrice = parseFloat(String(market.outcomePrices[1] || '0')) * 100;
 
   return (
-    <div className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+    <div onClick={onOpen} className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+      {/* Event Image Banner */}
+      {market.eventImage && (
+        <div className="w-full h-40 overflow-hidden">
+          <img 
+            src={market.eventImage} 
+            alt={market.question} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        </div>
+      )}
+      
       <div className="p-6 space-y-4">
         {/* Market Question */}
-        <h3 className="text-lg font-semibold text-gray-900 leading-tight">
-          {market.question}
-        </h3>
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-900 leading-tight line-clamp-2">
+            {market.question}
+          </h3>
+          
+          {/* Sentiment Indicators */}
+          {sentimentIndicators.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {sentimentIndicators.map((indicator, index) => (
+                <div
+                  key={index}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${indicator.color}`}
+                >
+                  <span>{indicator.emoji}</span>
+                  <span>{indicator.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Volume and Liquidity */}
         <div className="grid grid-cols-2 gap-4">
