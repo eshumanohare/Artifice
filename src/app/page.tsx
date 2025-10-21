@@ -67,19 +67,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4 sm:p-8 relative z-10">
-      {/* Background Math Equations */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-20 left-10 text-6xl text-blue-100/20 font-mono transform -rotate-12">P = S × (1 + r)^t</div>
-        <div className="absolute top-40 right-20 text-5xl text-green-100/20 font-mono transform rotate-6">ROI = (P₁ - P₀) / P₀</div>
-        <div className="absolute top-80 left-20 text-4xl text-purple-100/20 font-mono transform rotate-3">α = Rₚ - Rₘ</div>
-        <div className="absolute top-60 right-10 text-5xl text-orange-100/20 font-mono transform -rotate-6">β = Cov(Rₚ, Rₘ) / Var(Rₘ)</div>
-        <div className="absolute bottom-40 left-16 text-4xl text-red-100/20 font-mono transform rotate-12">Sharpe = (Rₚ - Rf) / σₚ</div>
-        <div className="absolute bottom-60 right-24 text-6xl text-indigo-100/20 font-mono transform -rotate-3">VaR = μ - z × σ</div>
-        <div className="absolute top-32 left-1/2 text-3xl text-cyan-100/20 font-mono transform rotate-9">Δ = ∂P/∂S</div>
-        <div className="absolute bottom-80 right-16 text-4xl text-pink-100/20 font-mono transform -rotate-9">γ = ∂²P/∂S²</div>
-        <div className="absolute top-96 right-1/3 text-5xl text-yellow-100/20 font-mono transform rotate-15">θ = ∂P/∂t</div>
-        <div className="absolute bottom-32 left-1/3 text-4xl text-teal-100/20 font-mono transform -rotate-12">ρ = ∂P/∂r</div>
-      </div>
       {/* Top Right Buttons */}
       <div className="fixed top-6 right-6 z-50 flex gap-3">
 
@@ -87,7 +74,6 @@ export default function Home() {
         <button
           onClick={() => setShowWhaleActivity(!showWhaleActivity)}
           className="glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
-          style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}
         >
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -110,7 +96,6 @@ export default function Home() {
         <button
           onClick={() => setShowLiveOrders(!showLiveOrders)}
           className="glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
-          style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}
         >
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -133,51 +118,48 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl sm:text-8xl font-bold mb-4 tracking-tight glass-heading" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
-            Artifice
+          <h1 className="text-8xl sm:text-9xl font-bold mb-4 tracking-tight inverted-logo">
+            artifice
           </h1>
-          <p className="text-lg text-blue-600 font-medium mb-4" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+          <p className="text-2xl sm:text-3xl font-bold mb-4 tracking-wide inverted-logo">
             Copy Trade from Top Polymarket Holders
           </p>
           
           {/* Feature Tags */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <span className="text-green-500">📈</span>
-              <span className="text-sm font-semibold text-gray-800">Copy Top Traders</span>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-green-400 glow-colored">📈</span>
+              <span className="text-sm font-bold text-white glow-text">Copy Top Traders</span>
             </div>
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <span className="text-blue-500">⚡</span>
-              <span className="text-sm font-semibold text-gray-800">Real-time Orders</span>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-blue-400 glow-colored">⚡</span>
+              <span className="text-sm font-bold text-white glow-text">Real-time Orders</span>
             </div>
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <span className="text-purple-500">🎯</span>
-              <span className="text-sm font-semibold text-gray-800">Smart Analytics</span>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-purple-400 glow-colored">🎯</span>
+              <span className="text-sm font-bold text-white glow-text">Smart Analytics</span>
             </div>
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <span className="text-orange-500">🐋</span>
-              <span className="text-sm font-semibold text-gray-800">Whale Tracking</span>
+            <div className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="text-orange-400 glow-colored">🐋</span>
+              <span className="text-sm font-bold text-white glow-text">Whale Tracking</span>
             </div>
           </div>
           
           {/* HyperSync Branding */}
-          <div className="flex items-center justify-center gap-3">
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">H</span>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-gray-900">Powered by HyperSync</div>
-                <div className="text-xs text-gray-600">Ultra-fast blockchain data layer</div>
-              </div>
-            </div>
+          <div className="flex items-center justify-center">
             <a 
               href="https://envio.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
+              className="bg-black/50 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/60 transition-all duration-200"
             >
-              Learn more →
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">H</span>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white glow-text">Powered by Envio HyperSync</div>
+                <div className="text-xs font-bold text-gray-300 glow-text">Ultra-fast blockchain data layer</div>
+              </div>
             </a>
           </div>
         </div>
@@ -294,7 +276,7 @@ export default function Home() {
       {/* Overlay when panels are open */}
       {(showLiveOrders || showWhaleActivity) && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 transition-opacity duration-300"
           onClick={() => {
             setShowLiveOrders(false);
             setShowWhaleActivity(false);

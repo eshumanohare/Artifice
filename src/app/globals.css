@@ -8,65 +8,61 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-geist);
   --font-geist: var(--font-geist);
 }
 
 body {
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(147, 197, 253, 0.5), transparent),
-              radial-gradient(ellipse 60% 80% at -90% 60%, rgba(16, 78, 154, 0.4), transparent),
-              radial-gradient(ellipse 100% 100% at 30% 80%, rgba(32, 102, 214, 0.3), transparent),
-              radial-gradient(ellipse 120% 120% at 70% 90%, rgba(5, 10, 12, 0.35), transparent),
-              linear-gradient(to bottom, #a8c5e6 0%, #5baaf5 50%, #b3d4e8 100%);
+  background: url('/dazzle-bg-2000px.png') center/cover no-repeat fixed;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Blurred circle decorations in background */
+/* Background overlay - no blur for crisp dazzle pattern */
 body::before {
   content: '';
   position: fixed;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(147, 197, 253, 0.4), rgba(96, 165, 250, 0.2));
-  filter: blur(80px);
-  top: 10%;
-  left: -10%;
-  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/dazzle-bg-2000px.png') center/cover no-repeat fixed;
+  z-index: -1;
   pointer-events: none;
 }
 
+/* Semi-transparent overlay for better text readability */
 body::after {
   content: '';
   position: fixed;
-  width: 350px;
-  height: 350px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.35), rgba(147, 197, 253, 0.15));
-  filter: blur(70px);
-  bottom: 15%;
-  right: -5%;
-  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: -1;
   pointer-events: none;
 }
 
 /* Glassmorphism utility classes */
 .glass-card {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
 .glass-search {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 16px;
   box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
 }
@@ -186,3 +182,120 @@ body::after {
 .order-card:hover {
   transform: translateY(-2px);
 }
+
+/* Floating animations for background equations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatDelayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-slow {
+  animation: floatSlow 10s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+/* Geometric Pattern Animations */
+@keyframes patternShift {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(10px) translateY(-5px); }
+  50% { transform: translateX(0) translateY(-10px); }
+  75% { transform: translateX(-10px) translateY(-5px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes patternRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes patternScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Apply subtle animations to the geometric pattern */
+.geometric-pattern {
+  animation: patternShift 20s ease-in-out infinite;
+}
+
+.geometric-overlay {
+  animation: patternRotate 60s linear infinite;
+}
+
+.geometric-accent {
+  animation: patternScale 15s ease-in-out infinite;
+}
+
+/* Inverted logo effect - white in black regions, black in white regions */
+.inverted-logo {
+  color: white;
+  mix-blend-mode: difference;
+  font-weight: bold;
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+/* Alternative approach using text-shadow for better compatibility */
+.inverted-logo-alt {
+  color: transparent;
+  background: linear-gradient(45deg, white, black);
+  -webkit-background-clip: text;
+  background-clip: text;
+  mix-blend-mode: difference;
+  font-weight: bold;
+  position: relative;
+  z-index: 10;
+}
+
+/* Glow effect for tags and other content */
+.glow-text {
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 16px rgba(255, 255, 255, 0.6),
+    0 0 24px rgba(255, 255, 255, 0.4),
+    0 0 32px rgba(255, 255, 255, 0.2);
+}
+
+/* Glow effect for colored elements */
+.glow-colored {
+  filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 16px currentColor) drop-shadow(0 0 24px currentColor);
+}
+
+

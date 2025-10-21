@@ -1,0 +1,56 @@
+<svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grayGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#666666;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#333333;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Arti - Red section -->
+  <g fill="url(#redGradient)">
+    <!-- Letter 'a' -->
+    <path d="M20 60 Q20 40 40 40 Q60 40 60 60 Q60 80 40 80 Q20 80 20 60 Z M40 50 Q50 50 50 60 Q50 70 40 70 Q30 70 30 60 Q30 50 40 50 Z" />
+    
+    <!-- Letter 'r' -->
+    <path d="M80 40 L80 80 M80 50 Q90 50 90 60 Q90 70 80 70" />
+    
+    <!-- Letter 't' -->
+    <path d="M110 40 L110 80 M100 50 L120 50" />
+    
+    <!-- Letter 'i' -->
+    <circle cx="140" cy="45" r="3" />
+    <path d="M140 50 L140 80" />
+  </g>
+  
+  <!-- Fice - Gray section -->
+  <g fill="url(#grayGradient)">
+    <!-- Letter 'f' -->
+    <path d="M180 40 L180 80 M180 50 L200 50 M180 60 L190 60" />
+    
+    <!-- Letter 'i' -->
+    <circle cx="220" cy="45" r="3" />
+    <path d="M220 50 L220 80" />
+    
+    <!-- Letter 'c' -->
+    <path d="M250 60 Q250 50 260 50 Q270 50 270 60 Q270 70 260 70 Q250 70 250 60 Z M260 55 Q265 55 265 60 Q265 65 260 65 Q255 65 255 60 Q255 55 260 55 Z" />
+    
+    <!-- Letter 'e' -->
+    <path d="M300 50 L300 80 M300 50 L320 50 M300 65 L315 65 M300 80 L320 80" />
+  </g>
+  
+  <!-- Connecting lines for fluid look -->
+  <path d="M60 60 Q70 60 80 60" stroke="url(#redGradient)" stroke-width="3" fill="none" />
+  <path d="M140 60 Q150 60 160 60" stroke="url(#redGradient)" stroke-width="3" fill="none" />
+  <path d="M160 60 Q170 60 180 60" stroke="url(#grayGradient)" stroke-width="3" fill="none" />
+  <path d="M220 60 Q230 60 240 60" stroke="url(#grayGradient)" stroke-width="3" fill="none" />
+  <path d="M270 60 Q280 60 290 60" stroke="url(#grayGradient)" stroke-width="3" fill="none" />
+  
+  <!-- Decorative elements -->
+  <circle cx="50" cy="30" r="2" fill="url(#redGradient)" opacity="0.6" />
+  <circle cx="200" cy="30" r="2" fill="url(#grayGradient)" opacity="0.6" />
+  <circle cx="350" cy="30" r="2" fill="url(#grayGradient)" opacity="0.6" />
+</svg>

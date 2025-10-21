@@ -101,7 +101,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-blue-500/30 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
     >
       <div
@@ -109,7 +109,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top: Market info rectangle */}
-        <div className="p-6 border-b border-blue-100/40" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+        <div className="p-6 border-b border-blue-100/40">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1 min-w-0">
               {/* Event Image */}
@@ -168,7 +168,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
         </div>
 
         {/* Tab Navigation */}
-        <div className="border-b border-blue-100/40" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+        <div className="border-b border-blue-100/40">
           <div className="flex space-x-2 px-6 py-2">
             <button
               onClick={() => setActiveTab('overview')}
@@ -194,7 +194,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+        <div className="p-6">
           {activeTab === 'overview' && (
             <>
               {/* Merged YES/NO price block */}
