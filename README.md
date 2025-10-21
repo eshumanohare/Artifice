@@ -1,20 +1,17 @@
-# 🎯 Artifice - Real-Time Polymarket Analytics Dashboard
+# 🎯 Artifice - Real-Time Polymarket Dashboard
 
-A comprehensive real-time analytics dashboard for Polymarket prediction markets, powered by **HyperSync** - Envio's ultra-fast blockchain data layer. Built for the ETH Online 2025 hackathon with a focus on showcasing HyperSync's capabilities for real-time Web3 data streaming and analytics.
+A comprehensive real-time dashboard for Polymarket prediction markets, powered by **HyperSync** - Envio's ultra-fast blockchain data layer. Built for the ETH Online 2025 hackathon with a focus on showcasing HyperSync's capabilities for real-time Web3 data streaming.
 
 ## 🚀 Features
 
 ### Real-Time Data Streaming
 - **Live Order Feed**: Real-time OrderFilled events from Polymarket CTF Exchange
-- **Price & Volume Charts**: Interactive time-series charts with multiple intervals (1min, 5min, 15min, 1hr)
-- **Market Analytics**: Rolling statistics, top movers, volume leaders, and momentum indicators
 - **Whale Tracking**: Large trade detection and smart money monitoring
 - **Market Sentiment**: Buy/sell pressure analysis and unusual activity alerts
 
 ### Dashboard Views
 - **Home**: Top markets by volume with live order feed
-- **Analytics**: Comprehensive market statistics and trends
-- **Market Details**: Individual market analysis with charts and holder data
+- **Market Details**: Individual market analysis with holder data
 - **Live Panels**: Slide-in panels for orders and whale activity
 
 ### HyperSync Integration
@@ -36,7 +33,6 @@ This project is designed to compete for:
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling with glassmorphism design
-- **Recharts** - Interactive charts and visualizations
 - **date-fns** - Date manipulation and formatting
 
 ### Backend
@@ -97,8 +93,6 @@ This project is designed to compete for:
 The application uses multiple Python scripts that stream blockchain data using HyperSync:
 
 1. **`stream_orders.py`** - Live OrderFilled events
-2. **`stream_market_history.py`** - Time-series data for charts
-3. **`stream_analytics.py`** - Rolling statistics and analytics
 
 ### Data Flow
 
@@ -111,7 +105,6 @@ HyperSync (Polygon) → Python Streams → JSON Cache → Next.js API → React 
 - **Real-time streaming** with `client.stream()`
 - **Event decoding** with `hypersync.Decoder`
 - **Block range queries** for historical data
-- **Multi-event processing** for comprehensive analytics
 - **Error handling** and reconnection logic
 
 ### Performance Metrics
@@ -132,13 +125,12 @@ HyperSync (Polygon) → Python Streams → JSON Cache → Next.js API → React 
 ### Real-Time Indicators
 - Pulsing indicators for live data
 - Animated order feeds with smooth transitions
-- Live updating charts and statistics
+- Live updating statistics
 - Whale activity alerts with emoji indicators
 
 ### Interactive Elements
-- Tabbed market modals (Overview, Charts, Holders)
+- Tabbed market modals (Overview, Holders)
 - Slide-in panels for live data
-- Interactive charts with tooltips
 - Search and filtering capabilities
 
 ## 📁 Project Structure
@@ -147,14 +139,12 @@ HyperSync (Polygon) → Python Streams → JSON Cache → Next.js API → React 
 Artifice/
 ├── src/
 │   ├── app/
-│   │   ├── analytics/          # Analytics dashboard page
 │   │   ├── api/
-│   │   │   ├── analytics/      # Analytics API endpoints
 │   │   │   ├── markets/        # Market data APIs
+│   │   │   ├── holders/        # Holder data APIs
 │   │   │   └── orders/         # Live orders API
 │   │   └── page.tsx           # Homepage
 │   ├── components/
-│   │   ├── MarketChartPanel.tsx    # Price/volume charts
 │   │   ├── WhaleActivityFeed.tsx   # Whale tracking
 │   │   ├── LiveOrdersFeed.tsx      # Live order feed
 │   │   └── MarketModal.tsx         # Market details modal
@@ -162,8 +152,6 @@ Artifice/
 │       └── market.ts          # TypeScript interfaces
 ├── scripts/
 │   ├── stream_orders.py       # Live orders stream
-│   ├── stream_market_history.py  # Chart data stream
-│   ├── stream_analytics.py    # Analytics stream
 │   └── start_all_streams.sh   # Stream orchestration
 ├── .cache/                    # JSON cache files
 └── requirements.txt           # Python dependencies
@@ -191,12 +179,11 @@ Use the orchestration script to manage all streams:
 ./scripts/start_all_streams.sh logs     # View activity
 ```
 
-## 📈 Analytics Features
+## 📊 Dashboard Features
 
 ### Market Statistics
 - 24h volume, trades, and active traders
 - Top movers by price change
-- Volume leaders with sparkline charts
 - Market momentum indicators
 
 ### Whale Tracking
@@ -217,9 +204,8 @@ This project demonstrates HyperSync's capabilities for:
 
 1. **Real-time data streaming** - Multiple concurrent streams processing blockchain events
 2. **Event decoding** - Sophisticated parsing of OrderFilled events
-3. **Historical queries** - Time-range data aggregation for charts
-4. **Error handling** - Robust reconnection and recovery mechanisms
-5. **Performance** - Sub-5-second data latency from chain to UI
+3. **Error handling** - Robust reconnection and recovery mechanisms
+4. **Performance** - Sub-5-second data latency from chain to UI
 
 ## 🤝 Contributing
 

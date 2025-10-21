@@ -68,13 +68,20 @@ export default function WhaleActivityFeed() {
 
     const fetchWhaleActivity = async () => {
       try {
-        const res = await fetch('/api/analytics?section=whaleActivity');
+        const res = await fetch('/api/orders');
         if (!res.ok) throw new Error('Failed to fetch whale activity');
         const data = await res.json();
         
         if (isMounted && Array.isArray(data)) {
+          // Filter for large orders (whales) - orders with volume > $10,000
+          const whaleThreshold = 10000;
+          const whaleOrders = data.filter((order: any) => {
+            const volume = order.volumeUsd || 0;
+            return volume > whaleThreshold;
+          });
+          
           // Find truly new whales (not seen before)
-          const newWhales = data.filter((whale: WhaleActivity) => {
+          const newWhales = whaleOrders.filter((whale: WhaleActivity) => {
             const whaleId = `${whale.orderHash}-${whale.timestamp}`;
             if (seenWhaleIdsRef.current.has(whaleId)) {
               return false;

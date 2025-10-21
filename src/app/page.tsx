@@ -69,20 +69,6 @@ export default function Home() {
     <div className="min-h-screen p-4 sm:p-8 relative z-10">
       {/* Top Right Buttons */}
       <div className="fixed top-6 right-6 z-50 flex gap-3">
-        {/* Analytics Button */}
-        <Link
-          href="/analytics"
-          className="glass-card px-6 py-3 flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-lg"
-          style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-pulse" />
-            <span className="text-sm font-semibold text-blue-900">Analytics</span>
-          </div>
-          <svg className="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </Link>
 
         {/* Whale Activity Toggle Button */}
         <button

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Holder, Market } from '@/types/market';
-import MarketChartPanel from './MarketChartPanel';
 
 interface MarketModalProps {
   market: Market;
@@ -18,7 +17,7 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
   const [holders, setHolders] = useState<HoldersResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'holders'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'holders'>('overview');
 
   const yesPrice = useMemo(() => {
     return (parseFloat(String(market.outcomePrices?.[0] ?? '0')) || 0) * 100;
@@ -182,16 +181,6 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
               Overview
             </button>
             <button
-              onClick={() => setActiveTab('charts')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'charts'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Charts
-            </button>
-            <button
               onClick={() => setActiveTab('holders')}
               className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'holders'
@@ -249,12 +238,6 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
             </>
           )}
 
-          {activeTab === 'charts' && (
-            <MarketChartPanel 
-              marketId={market.conditionId} 
-              marketQuestion={market.question}
-            />
-          )}
 
           {activeTab === 'holders' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

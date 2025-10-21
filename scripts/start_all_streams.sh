@@ -22,10 +22,16 @@ is_running() {
 start_stream() {
     local script_name=$1
     local description=$2
-    local script_path="scripts/$script_name"
     
-    if [ ! -f "$script_path" ]; then
-        echo -e "${RED}❌ Error: $script_path not found${NC}"
+    # Check if we're in the scripts directory or project root
+    if [ -f "$script_name" ]; then
+        # We're in the scripts directory
+        local script_path="$script_name"
+    elif [ -f "scripts/$script_name" ]; then
+        # We're in the project root
+        local script_path="scripts/$script_name"
+    else
+        echo -e "${RED}❌ Error: $script_name not found${NC}"
         return 1
     fi
     
@@ -35,7 +41,16 @@ start_stream() {
     fi
     
     echo -e "${BLUE}🔄 Starting $description...${NC}"
-    source env/bin/activate && python3 "$script_path" &
+    
+    # Check if we're in scripts directory and need to go up one level for env
+    if [ -f "$script_name" ] && [ -f "../env/bin/activate" ]; then
+        source ../env/bin/activate && python3 "$script_path" &
+    elif [ -f "env/bin/activate" ]; then
+        source env/bin/activate && python3 "$script_path" &
+    else
+        python3 "$script_path" &
+    fi
+    
     local pid=$!
     echo -e "${GREEN}✅ $description started with PID $pid${NC}"
     return 0
@@ -47,8 +62,6 @@ stop_streams() {
     
     # Kill all Python processes running our scripts
     pkill -f "stream_orders.py"
-    pkill -f "stream_market_history.py"
-    pkill -f "stream_analytics.py"
     pkill -f "stream_whale_activity.py"
     
     echo -e "${GREEN}✅ All streams stopped${NC}"
@@ -61,8 +74,6 @@ show_status() {
     
     local streams=(
         "stream_orders.py:Live Orders"
-        "stream_market_history.py:Market History"
-        "stream_analytics.py:Analytics"
         "stream_whale_activity.py:Whale Activity"
     )
     
@@ -84,8 +95,6 @@ show_logs() {
     # Show recent log entries from each stream
     local log_files=(
         ".cache/live_orders.json"
-        ".cache/market_history.json"
-        ".cache/analytics_snapshot.json"
         ".cache/whale_activity.json"
     )
     
@@ -115,10 +124,8 @@ case "${1:-start}" in
         start_stream "stream_orders.py" "Live Orders Stream"
         sleep 2
         
-        start_stream "stream_market_history.py" "Market History Stream"
         sleep 2
         
-        start_stream "stream_analytics.py" "Analytics Stream"
         sleep 2
         
         # Note: whale_activity.py is integrated into analytics.py for now
