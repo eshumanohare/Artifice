@@ -230,11 +230,14 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
                             <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-sm">Y</div>
                           )}
                           <div className="min-w-0 max-w-[200px]">
-                            {profileUrl ? (
-                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" title={name}>{name}</a>
-                            ) : (
-                              <div className="text-base font-medium text-gray-900 truncate" title={name}>{name}</div>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {profileUrl ? (
+                                <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" title={name}>{name}</a>
+                              ) : (
+                                <div className="text-base font-medium text-gray-900 truncate" title={name}>{name}</div>
+                              )}
+                              <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-300 font-semibold whitespace-nowrap">YES</span>
+                            </div>
                             <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
                             <div className="mt-1 flex gap-2 flex-wrap">
                               {typeof h.winStreakLatest === 'number' && h.winStreakLatest > 0 && (
@@ -286,11 +289,14 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
                             <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-sm">N</div>
                           )}
                           <div className="min-w-0 max-w-[200px]">
-                            {profileUrl ? (
-                              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" title={name}>{name}</a>
-                            ) : (
-                              <div className="text-base font-medium text-gray-900 truncate" title={name}>{name}</div>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {profileUrl ? (
+                                <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-base font-medium text-blue-700 hover:underline truncate block" title={name}>{name}</a>
+                              ) : (
+                                <div className="text-base font-medium text-gray-900 truncate" title={name}>{name}</div>
+                              )}
+                              <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-300 font-semibold whitespace-nowrap">NO</span>
+                            </div>
                             <div className="text-sm text-gray-600 font-mono truncate">{h.addressShort || shorten(h.address)}</div>
                             <div className="mt-1 flex gap-2 flex-wrap">
                               {typeof h.winStreakLatest === 'number' && h.winStreakLatest > 0 && (

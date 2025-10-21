@@ -65,7 +65,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl sm:text-8xl font-bold text-blue-700 mb-4 tracking-tight" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
+          <h1 className="text-6xl sm:text-8xl font-bold mb-4 tracking-tight glass-heading" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
             Artifice
           </h1>
           <p className="text-lg text-blue-600 font-medium" style={{ fontFamily: 'var(--font-geist), system-ui, sans-serif' }}>
