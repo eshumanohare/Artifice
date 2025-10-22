@@ -1,7 +1,10 @@
 #!/bin/bash
 
-echo "🚀 Artifice Dashboard - Deployment Script"
-echo "========================================"
+# Simple deployment script for Artifice Dashboard
+# Supports multiple deployment platforms
+
+echo "🚀 Artifice Dashboard Deployment Script"
+echo "======================================"
 
 # Colors for output
 RED='\033[0;31m'
@@ -15,179 +18,146 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Function to check if we're in a git repository
-check_git_repo() {
-    if [ ! -d ".git" ]; then
-        echo -e "${RED}❌ Not in a git repository${NC}"
-        echo "Please initialize git and commit your code first:"
-        echo "  git init"
-        echo "  git add ."
-        echo "  git commit -m 'Initial commit'"
-        exit 1
-    fi
-}
-
-# Function to check if all files are committed
-check_git_status() {
-    if [ -n "$(git status --porcelain)" ]; then
-        echo -e "${YELLOW}⚠️  You have uncommitted changes${NC}"
-        echo "Please commit your changes first:"
-        echo "  git add ."
-        echo "  git commit -m 'Deploy to production'"
-        exit 1
-    fi
-}
-
-# Function to test Docker build
-test_docker_build() {
-    echo -e "${BLUE}🔨 Testing Docker build...${NC}"
+# Function to deploy to Vercel
+deploy_vercel() {
+    echo -e "${BLUE}📦 Deploying to Vercel...${NC}"
     
-    if ! command_exists docker; then
-        echo -e "${RED}❌ Docker not found. Please install Docker first.${NC}"
-        echo "Visit: https://docs.docker.com/get-docker/"
-        exit 1
+    if ! command_exists vercel; then
+        echo -e "${YELLOW}Installing Vercel CLI...${NC}"
+        npm install -g vercel
     fi
     
-    echo "Building Docker image..."
-    if docker build -t artifice-dashboard .; then
-        echo -e "${GREEN}✅ Docker build successful${NC}"
+    # Build the project
+    echo -e "${BLUE}Building project...${NC}"
+    npm run build
+    
+    # Deploy
+    vercel --prod
+    
+    echo -e "${GREEN}✅ Deployed to Vercel!${NC}"
+    echo -e "${YELLOW}⚠️  Note: Python scripts won't work on Vercel. Use local development or different platform.${NC}"
+}
+
+# Function to deploy to Netlify
+deploy_netlify() {
+    echo -e "${BLUE}📦 Deploying to Netlify...${NC}"
+    
+    if ! command_exists netlify; then
+        echo -e "${YELLOW}Installing Netlify CLI...${NC}"
+        npm install -g netlify-cli
+    fi
+    
+    # Build the project
+    echo -e "${BLUE}Building project...${NC}"
+    npm run build
+    
+    # Deploy
+    netlify deploy --prod --dir=.next
+    
+    echo -e "${GREEN}✅ Deployed to Netlify!${NC}"
+    echo -e "${YELLOW}⚠️  Note: Background functions need manual setup in Netlify dashboard.${NC}"
+}
+
+# Function to deploy to Railway
+deploy_railway() {
+    echo -e "${BLUE}📦 Deploying to Railway...${NC}"
+    
+    if ! command_exists railway; then
+        echo -e "${YELLOW}Installing Railway CLI...${NC}"
+        curl -fsSL https://railway.app/install.sh | sh
+    fi
+    
+    # Login and deploy
+    railway login
+    railway up
+    
+    echo -e "${GREEN}✅ Deployed to Railway!${NC}"
+    echo -e "${YELLOW}⚠️  Note: You'll need to add a worker service for Python scripts.${NC}"
+}
+
+# Function to deploy to Render
+deploy_render() {
+    echo -e "${BLUE}📦 Deploying to Render...${NC}"
+    
+    echo -e "${YELLOW}Render deployment requires manual setup:${NC}"
+    echo "1. Go to https://render.com"
+    echo "2. Connect your GitHub repository"
+    echo "3. Create two services:"
+    echo "   - Web Service: Use Node.js, build command: npm install && npm run build"
+    echo "   - Background Worker: Use Python, build command: pip install -r requirements.txt"
+    echo "4. The render.yaml file is already configured for this setup"
+    
+    echo -e "${GREEN}✅ Configuration ready for Render!${NC}"
+}
+
+# Function to show local development setup
+local_dev() {
+    echo -e "${BLUE}🏠 Setting up local development...${NC}"
+    
+    # Install dependencies
+    echo -e "${BLUE}Installing Node.js dependencies...${NC}"
+    npm install
+    
+    echo -e "${BLUE}Installing Python dependencies...${NC}"
+    if [ -f "env/bin/activate" ]; then
+        source env/bin/activate && pip install -r requirements.txt
     else
-        echo -e "${RED}❌ Docker build failed${NC}"
-        exit 1
+        echo -e "${YELLOW}Creating virtual environment...${NC}"
+        python3 -m venv env
+        source env/bin/activate && pip install -r requirements.txt
     fi
-}
-
-# Function to test local deployment
-test_local_deployment() {
-    echo -e "${BLUE}🧪 Testing local deployment...${NC}"
     
-    echo "Starting Docker container..."
-    CONTAINER_ID=$(docker run -d -p 3000:3000 artifice-dashboard)
+    # Create cache directory
+    mkdir -p .cache
     
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✅ Container started with ID: $CONTAINER_ID${NC}"
-        echo "Waiting for application to start..."
-        sleep 30
-        
-        # Test health endpoint
-        if curl -f http://localhost:3000/api/orders >/dev/null 2>&1; then
-            echo -e "${GREEN}✅ Application is responding${NC}"
-        else
-            echo -e "${YELLOW}⚠️  Application may not be fully ready yet${NC}"
-        fi
-        
-        echo "Dashboard should be available at: http://localhost:3000"
-        echo "Press Ctrl+C to stop the test"
-        
-        # Wait for user to stop
-        trap "echo 'Stopping container...'; docker stop $CONTAINER_ID; docker rm $CONTAINER_ID; exit 0" INT
-        wait
-    else
-        echo -e "${RED}❌ Failed to start container${NC}"
-        exit 1
-    fi
-}
-
-# Function to show deployment options
-show_deployment_options() {
-    echo -e "${BLUE}🎯 Deployment Options:${NC}"
+    echo -e "${GREEN}✅ Local development setup complete!${NC}"
     echo ""
-    echo "1. Railway (Recommended - Free tier available)"
-    echo "   - Go to https://railway.app"
-    echo "   - Sign in with GitHub"
-    echo "   - Create new project"
-    echo "   - Connect your repository"
-    echo "   - Deploy automatically"
+    echo -e "${YELLOW}To start development:${NC}"
+    echo "1. Terminal 1: npm run dev (for Next.js)"
+    echo "2. Terminal 2: source env/bin/activate && python3 scripts/stream_orders.py (for data streaming)"
+    echo "3. Visit http://localhost:3000"
     echo ""
-    echo "2. Render (Alternative)"
-    echo "   - Go to https://render.com"
-    echo "   - Create new Web Service"
-    echo "   - Connect GitHub repository"
-    echo "   - Use Docker deployment"
-    echo ""
-    echo "3. Vercel (Frontend only - requires separate backend)"
-    echo "   - Go to https://vercel.com"
-    echo "   - Import GitHub repository"
-    echo "   - Deploy (Note: Python streams won't work)"
-    echo ""
-    echo "4. Local Docker deployment"
-    echo "   - Run: docker-compose up --build"
-    echo "   - Access at http://localhost:3000"
-}
-
-# Function to show Railway deployment steps
-show_railway_steps() {
-    echo -e "${BLUE}🚀 Railway Deployment Steps:${NC}"
-    echo ""
-    echo "1. Go to https://railway.app"
-    echo "2. Sign in with your GitHub account"
-    echo "3. Click 'New Project'"
-    echo "4. Select 'Deploy from GitHub repo'"
-    echo "5. Choose your Artifice repository"
-    echo "6. Railway will automatically:"
-    echo "   - Detect the Dockerfile"
-    echo "   - Build the application"
-    echo "   - Deploy to a public URL"
-    echo "7. Your app will be live at: https://your-app-name.up.railway.app"
-    echo ""
-    echo -e "${GREEN}✅ That's it! Your dashboard will be live and accessible worldwide.${NC}"
+    echo -e "${YELLOW}Or use the start script:${NC}"
+    echo "./scripts/start_all_streams.sh"
 }
 
 # Main script logic
 case "${1:-help}" in
-    "test")
-        echo -e "${BLUE}🧪 Testing deployment locally...${NC}"
-        check_git_repo
-        test_docker_build
-        test_local_deployment
+    "vercel")
+        deploy_vercel
         ;;
-        
-    "build")
-        echo -e "${BLUE}🔨 Building Docker image...${NC}"
-        test_docker_build
-        echo -e "${GREEN}✅ Build complete!${NC}"
+    "netlify")
+        deploy_netlify
         ;;
-        
-    "deploy")
-        echo -e "${BLUE}🚀 Preparing for deployment...${NC}"
-        check_git_repo
-        check_git_status
-        test_docker_build
-        echo -e "${GREEN}✅ Ready for deployment!${NC}"
-        echo ""
-        show_railway_steps
-        ;;
-        
     "railway")
-        show_railway_steps
+        deploy_railway
         ;;
-        
-    "options")
-        show_deployment_options
+    "render")
+        deploy_render
         ;;
-        
+    "local"|"dev")
+        local_dev
+        ;;
     "help"|"-h"|"--help")
-        echo "Artifice Dashboard Deployment Script"
+        echo "Artifice Dashboard Deployment Options"
         echo ""
-        echo "Usage: $0 [command]"
+        echo "Usage: $0 [platform]"
         echo ""
-        echo "Commands:"
-        echo "  test      Test deployment locally with Docker"
-        echo "  build     Build Docker image"
-        echo "  deploy    Prepare for deployment (check git, build)"
-        echo "  railway   Show Railway deployment steps"
-        echo "  options   Show all deployment options"
+        echo "Platforms:"
+        echo "  local     Setup local development environment"
+        echo "  vercel    Deploy to Vercel (Python scripts won't work)"
+        echo "  netlify   Deploy to Netlify (requires manual background function setup)"
+        echo "  railway   Deploy to Railway (supports both web and worker services)"
+        echo "  render    Deploy to Render (supports both web and worker services)"
         echo "  help      Show this help message"
         echo ""
-        echo "Examples:"
-        echo "  $0 test        # Test locally with Docker"
-        echo "  $0 deploy      # Prepare for Railway deployment"
-        echo "  $0 railway     # Show Railway steps"
+        echo "Recommended for your use case:"
+        echo "  $0 local     # For development"
+        echo "  $0 render    # For production (best support for Python + Node.js)"
         ;;
-        
     *)
-        echo -e "${RED}❌ Unknown command: $1${NC}"
-        echo "Run '$0 help' for usage information"
+        echo -e "${RED}❌ Unknown platform: $1${NC}"
+        echo "Run '$0 help' for available options"
         exit 1
         ;;
 esac

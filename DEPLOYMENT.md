@@ -1,203 +1,98 @@
-# 🚀 Artifice Dashboard - Free Deployment Guide
+# Artifice Dashboard - Deployment Guide
 
-This guide will help you deploy the Artifice Dashboard for free using Railway, which supports both Node.js and Python applications.
+## Quick Start
 
-## 🎯 Deployment Options
+### Local Development (Recommended for testing)
+```bash
+# Setup local environment
+./deploy.sh local
 
-### Option 1: Railway (Recommended - Free Tier Available)
-- **Free Tier**: $5 credit monthly, enough for small applications
-- **Supports**: Node.js + Python in same deployment
-- **Features**: Automatic deployments, custom domains, persistent storage
+# Start development (in separate terminals)
+npm run dev                    # Terminal 1: Next.js app
+python3 scripts/stream_orders.py  # Terminal 2: Data streaming
+```
 
-### Option 2: Render (Alternative)
-- **Free Tier**: Limited hours per month
-- **Supports**: Node.js + Python (separate services)
-- **Features**: Automatic deployments, custom domains
+### Production Deployment
 
-## 🚀 Railway Deployment (Recommended)
-
-### Prerequisites
-1. GitHub account
-2. Railway account (free at [railway.app](https://railway.app))
-
-### Step 1: Prepare Repository
+#### Option 1: Render (Recommended - Best for Python + Node.js)
 1. Push your code to GitHub
-2. Ensure all files are committed:
-   ```bash
-   git add .
-   git commit -m "Deploy to Railway"
-   git push origin main
-   ```
+2. Go to [render.com](https://render.com) and connect your repo
+3. Create two services:
+   - **Web Service**: Node.js, build command: `npm install && npm run build`
+   - **Background Worker**: Python, build command: `pip install -r requirements.txt`
+4. The `render.yaml` file is already configured
 
-### Step 2: Deploy on Railway
-1. Go to [railway.app](https://railway.app) and sign in
-2. Click "New Project"
-3. Select "Deploy from GitHub repo"
-4. Choose your Artifice repository
-5. Railway will automatically detect the Dockerfile and deploy
-
-### Step 3: Configure Environment
-Railway will automatically:
-- Build the Docker image
-- Install Python and Node.js dependencies
-- Start both the Python streams and Next.js server
-- Expose the application on a public URL
-
-### Step 4: Access Your Application
-- Railway will provide a public URL (e.g., `https://artifice-production.up.railway.app`)
-- The application will be accessible worldwide
-- Both the dashboard and API endpoints will work
-
-## 🔧 Local Testing Before Deployment
-
-### Test Docker Build Locally
+#### Option 2: Railway
 ```bash
-# Build the Docker image
-docker build -t artifice-dashboard .
+# Install Railway CLI
+curl -fsSL https://railway.app/install.sh | sh
 
-# Run locally
-docker run -p 3000:3000 artifice-dashboard
+# Deploy
+railway login
+railway up
+
+# Add worker service for Python scripts in Railway dashboard
 ```
 
-### Test with Docker Compose
+#### Option 3: Netlify
 ```bash
-# Start the full stack
-docker-compose up --build
+# Install Netlify CLI
+npm install -g netlify-cli
 
-# Access at http://localhost:3000
+# Deploy
+netlify deploy --prod --dir=.next
+
+# Setup background functions manually in Netlify dashboard
 ```
 
-## 📊 Monitoring Your Deployment
+## How It Works
 
-### Railway Dashboard
-- View logs in real-time
-- Monitor resource usage
-- Check deployment status
-- View environment variables
+### Local Development
+- Python script (`scripts/stream_orders.py`) creates JSON files in `.cache/` directory
+- Next.js API routes read from these files
+- Both processes run simultaneously
 
-### Health Checks
-The application includes health checks:
-- **Endpoint**: `/api/orders`
-- **Interval**: 30 seconds
-- **Timeout**: 10 seconds
+### Production Deployment
+- **Web Service**: Serves the Next.js application
+- **Background Worker**: Runs the Python script to fetch blockchain data
+- Both services can access shared storage (varies by platform)
 
-## 🛠 Troubleshooting
-
-### Common Issues
-
-1. **Stream Process Fails**
-   - Check Railway logs for Python errors
-   - Verify HyperSync connection
-   - Ensure cache directory permissions
-
-2. **Next.js Build Fails**
-   - Check Node.js version compatibility
-   - Verify all dependencies are installed
-   - Check TypeScript compilation errors
-
-3. **Port Issues**
-   - Railway automatically assigns ports
-   - Application uses `process.env.PORT` or defaults to 3000
-
-### Debug Commands
-```bash
-# Check if processes are running
-ps aux | grep -E "(python|node)"
-
-# Check cache files
-ls -la .cache/
-
-# View recent logs
-tail -f .cache/live_orders.json
+## File Structure
+```
+├── scripts/
+│   └── stream_orders.py          # Python script for blockchain data
+├── src/app/api/
+│   ├── orders/route.ts           # API endpoint for live orders
+│   └── whales/route.ts           # API endpoint for whale activity
+├── .cache/                       # JSON files created by Python script
+│   ├── live_orders.json
+│   └── whales.json
+└── deploy.sh                     # Deployment script
 ```
 
-## 🔄 Automatic Deployments
+## Troubleshooting
 
-### GitHub Integration
-- Push to main branch triggers automatic deployment
-- Railway builds and deploys automatically
-- Zero-downtime deployments
+### JSON Files Not Found
+- **Local**: Make sure Python script is running (`python3 scripts/stream_orders.py`)
+- **Production**: Check that background worker service is running
+- **Vercel**: Python scripts don't work on Vercel (serverless limitation)
 
-### Manual Deployments
-- Use Railway CLI: `railway up`
-- Or trigger from Railway dashboard
+### API Endpoints Not Working
+- Check browser console for errors
+- Verify Python script is creating JSON files
+- Check API route logs in production
 
-## 💰 Cost Optimization
+### Data Not Updating
+- Python script fetches data every few seconds
+- Check Python script logs for errors
+- Verify blockchain connection
 
-### Railway Free Tier
-- $5 credit monthly
-- Sufficient for small applications
-- Automatic scaling
+## Environment Variables
+No environment variables required for basic functionality.
 
-### Resource Usage
-- **Memory**: ~512MB (Python + Node.js)
-- **CPU**: Minimal usage
-- **Storage**: Cache files only
+## Support
+- **Render**: Best for Python + Node.js applications
+- **Railway**: Good alternative with easy setup
+- **Netlify**: Good for static sites, limited Python support
+- **Vercel**: Not recommended for this use case (no Python support)
 
-## 🌐 Custom Domain (Optional)
-
-1. Go to Railway project settings
-2. Add custom domain
-3. Configure DNS records
-4. SSL certificate auto-generated
-
-## 📈 Scaling
-
-### Upgrade Options
-- **Hobby Plan**: $5/month for more resources
-- **Pro Plan**: $20/month for production use
-- **Team Plan**: For multiple developers
-
-## 🔐 Security
-
-### Environment Variables
-- No sensitive data required
-- Uses public HyperSync endpoints
-- No API keys needed
-
-### Network Security
-- HTTPS enabled by default
-- CORS configured for public access
-- No authentication required (public dashboard)
-
-## 📱 Mobile Access
-
-The dashboard is fully responsive and works on:
-- Desktop browsers
-- Mobile devices
-- Tablets
-- Progressive Web App (PWA) compatible
-
-## 🎯 Production Checklist
-
-- [ ] Code pushed to GitHub
-- [ ] Railway project created
-- [ ] Deployment successful
-- [ ] Health checks passing
-- [ ] Streams running
-- [ ] Dashboard accessible
-- [ ] API endpoints working
-- [ ] Custom domain configured (optional)
-
-## 🆘 Support
-
-### Railway Support
-- Documentation: [docs.railway.app](https://docs.railway.app)
-- Community: Railway Discord
-- Status: [status.railway.app](https://status.railway.app)
-
-### Application Support
-- Check logs in Railway dashboard
-- Verify all services are running
-- Test API endpoints manually
-
----
-
-**🎉 Your Artifice Dashboard is now live and accessible worldwide!**
-
-The deployment includes:
-- ✅ Real-time HyperSync data streaming
-- ✅ Next.js dashboard with live updates
-- ✅ Automatic process management
-- ✅ Health monitoring
-- ✅ Zero-downtime deployments
