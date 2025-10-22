@@ -77,30 +77,8 @@ COPY requirements.txt ./
 # Create cache directory
 RUN mkdir -p .cache
 
-# Create startup script
-COPY <<EOF /app/start.sh
-#!/bin/bash
-set -e
-
-echo "🚀 Starting Artifice Dashboard..."
-
-# Start Python streams in background
-echo "📡 Starting HyperSync streams..."
-cd /app
-python3 scripts/stream_orders.py &
-STREAM_PID=\$!
-
-# Wait a moment for streams to initialize
-sleep 5
-
-# Start Next.js application
-echo "🌐 Starting Next.js server..."
-npm start &
-
-# Wait for both processes
-wait \$STREAM_PID
-EOF
-
+# Copy startup script
+COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Expose port

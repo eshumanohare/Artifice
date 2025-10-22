@@ -10,7 +10,8 @@
     "stream": "python3 scripts/stream_orders.py",
     "setup": "pip3 install -r requirements.txt",
     "deploy": "npm run build && npm start",
-    "stream:prod": "python3 scripts/stream_orders.py"
+    "stream:prod": "python3 scripts/stream_orders.py",
+    "start:prod": "/app/start.sh"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
