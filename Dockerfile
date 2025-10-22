@@ -67,8 +67,8 @@ COPY --from=node-base /app/tsconfig.json ./
 COPY --from=node-base /app/postcss.config.mjs ./
 COPY --from=node-base /app/eslint.config.mjs ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install production dependencies including TypeScript for runtime
+RUN npm ci --only=production && npm install typescript
 
 # Copy source files
 COPY src/ ./src/
