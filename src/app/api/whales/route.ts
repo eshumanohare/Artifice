@@ -2,14 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const WHALES_FILE = path.join(process.cwd(), '.cache', 'whales.json');
+// Support both local development and Netlify deployment
+const getWhalesFile = () => {
+  // Try local development first
+  const localFile = path.join(process.cwd(), '.cache', 'whales.json');
+  if (fs.existsSync(localFile)) {
+    return localFile;
+  }
+  
+  // Try Netlify temp directory
+  const netlifyFile = '/tmp/.cache/whales.json';
+  if (fs.existsSync(netlifyFile)) {
+    return netlifyFile;
+  }
+  
+  return null;
+};
 
 export async function GET(request: NextRequest) {
   try {
     console.log(`🐋 Reading whale data from persistent storage...`);
     
-    // Check if file exists
-    if (!fs.existsSync(WHALES_FILE)) {
+    const whalesFile = getWhalesFile();
+    
+    if (!whalesFile) {
       console.warn('⚠️ Whales file not found. Make sure Python stream is running.');
       return NextResponse.json({ 
         whales: [],
@@ -18,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Read file
-    const fileContent = fs.readFileSync(WHALES_FILE, 'utf-8');
+    const fileContent = fs.readFileSync(whalesFile, 'utf-8');
     const data = JSON.parse(fileContent);
     
     console.log(`✅ Loaded ${data.whales?.length || 0} whales from file (last update: ${new Date(data.lastUpdate).toLocaleString()})`);

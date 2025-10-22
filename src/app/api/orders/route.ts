@@ -2,14 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const ORDERS_FILE = path.join(process.cwd(), '.cache', 'live_orders.json');
+// Support both local development and Netlify deployment
+const getOrdersFile = () => {
+  // Try local development first
+  const localFile = path.join(process.cwd(), '.cache', 'live_orders.json');
+  if (fs.existsSync(localFile)) {
+    return localFile;
+  }
+  
+  // Try Netlify temp directory
+  const netlifyFile = '/tmp/.cache/live_orders.json';
+  if (fs.existsSync(netlifyFile)) {
+    return netlifyFile;
+  }
+  
+  return null;
+};
 
 export async function GET(request: NextRequest) {
   try {
-    console.log(`🔍 Reading live orders from Python stream...`);
+    console.log(`🔍 Reading live orders...`);
     
-    // Check if file exists
-    if (!fs.existsSync(ORDERS_FILE)) {
+    const ordersFile = getOrdersFile();
+    
+    if (!ordersFile) {
       console.warn('⚠️ Orders file not found. Make sure Python stream is running.');
       return NextResponse.json({ 
         orders: [],
@@ -18,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Read file
-    const fileContent = fs.readFileSync(ORDERS_FILE, 'utf-8');
+    const fileContent = fs.readFileSync(ordersFile, 'utf-8');
     const data = JSON.parse(fileContent);
     
     console.log(`✅ Loaded ${data.orders?.length || 0} orders from file (last update: ${new Date(data.lastUpdate).toLocaleString()})`);

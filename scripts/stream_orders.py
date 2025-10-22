@@ -76,6 +76,51 @@ def decode_order_event(log):
         print(f"❌ Error decoding log: {e}")
         return None
 
+async def fetch_latest_orders():
+    """Fetch latest orders from the blockchain (for testing)"""
+    try:
+        # Create hypersync client for Polygon
+        client = hypersync.HypersyncClient(hypersync.ClientConfig(
+            url='https://polygon.hypersync.xyz'
+        ))
+        
+        # CTF Exchange contract
+        ctf_exchange = "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E"
+        
+        # OrderFilled event signature
+        event_topic = "0xd0a08e8c493f9c94f29311604c9de1b4e8c8d4c06bd0c789af57f2d65bfec0f6"
+        
+        # Get current height and fetch recent blocks
+        current_height = await client.get_height()
+        start_block = max(0, current_height - 100)  # Last 100 blocks
+        
+        # Create query for OrderFilled events
+        query = hypersync.preset_query_logs_of_event(
+            ctf_exchange,
+            event_topic,
+            start_block
+        )
+        
+        # Fetch data using stream method
+        receiver = await client.stream(query, hypersync.StreamConfig())
+        res = await receiver.recv()
+        
+        if not res or not res.data or not res.data.logs:
+            return []
+        
+        # Decode logs
+        orders = []
+        for raw_log in res.data.logs:
+            order = decode_order_event(raw_log)
+            if order:
+                orders.append(order)
+        
+        return orders
+        
+    except Exception as e:
+        print(f"❌ Error fetching orders: {e}")
+        return []
+
 async def stream_orders():
     """Stream OrderFilled events and update the JSON file"""
     print("🚀 Starting OrderFilled event stream...")
