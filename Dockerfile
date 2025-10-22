@@ -28,8 +28,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY src/ ./src/
@@ -60,13 +60,15 @@ COPY --from=python-base /usr/local/lib/python3.12/site-packages /usr/local/lib/p
 COPY --from=python-base /usr/local/bin /usr/local/bin
 
 # Copy Node.js application from node-base
-COPY --from=node-base /app/node_modules ./node_modules
 COPY --from=node-base /app/.next ./.next
 COPY --from=node-base /app/package*.json ./
 COPY --from=node-base /app/next.config.ts ./
 COPY --from=node-base /app/tsconfig.json ./
 COPY --from=node-base /app/postcss.config.mjs ./
 COPY --from=node-base /app/eslint.config.mjs ./
+
+# Install only production dependencies
+RUN npm ci --only=production
 
 # Copy source files
 COPY src/ ./src/
