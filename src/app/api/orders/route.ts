@@ -2,57 +2,60 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-// Support both local development and Netlify deployment
-const getOrdersFile = () => {
-  // Try local development first
-  const localFile = path.join(process.cwd(), '.cache', 'live_orders.json');
-  if (fs.existsSync(localFile)) {
-    return localFile;
-  }
-  
-  // Try Netlify temp directory
-  const netlifyFile = '/tmp/.cache/live_orders.json';
-  if (fs.existsSync(netlifyFile)) {
-    return netlifyFile;
-  }
-  
-  return null;
-};
-
 export async function GET(request: NextRequest) {
   try {
-    console.log(`🔍 Reading live orders...`);
+    console.log(`🔍 Fetching live orders from cache...`);
     
-    const ordersFile = getOrdersFile();
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const marketId = searchParams.get('marketId');
+
+    // Read from the cache file
+    const cachePath = path.join(process.cwd(), '.cache', 'live_orders.json');
     
-    if (!ordersFile) {
-      console.warn('⚠️ Orders file not found. Make sure Python stream is running.');
-      return NextResponse.json({ 
+    if (!fs.existsSync(cachePath)) {
+      console.log('📁 Cache file not found, returning empty data');
+      return NextResponse.json({
         orders: [],
-        message: 'Python stream not running. Start it with: python3 scripts/stream_orders.py'
-      }, { status: 200 });
+        lastUpdate: Date.now(),
+        blockHeight: 0,
+        source: 'cache-missing',
+        count: 0
+      });
     }
-    
-    // Read file
-    const fileContent = fs.readFileSync(ordersFile, 'utf-8');
-    const data = JSON.parse(fileContent);
-    
-    console.log(`✅ Loaded ${data.orders?.length || 0} orders from file (last update: ${new Date(data.lastUpdate).toLocaleString()})`);
-    
-    // Return top 10 orders
-    const orders = data.orders?.slice(0, 10) || [];
-    
-    return NextResponse.json({ 
+
+    const cacheData = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    let orders = cacheData.orders || [];
+
+    // Filter by market if specified
+    if (marketId) {
+      orders = orders.filter((order: any) => order.marketId === marketId);
+    }
+
+    // Apply limit
+    orders = orders.slice(0, limit);
+
+    console.log(`✅ Loaded ${orders.length} orders from cache`);
+
+    return NextResponse.json({
       orders,
-      lastUpdate: data.lastUpdate,
-      blockHeight: data.blockHeight
+      lastUpdate: cacheData.lastUpdate || Date.now(),
+      blockHeight: cacheData.blockHeight || 0,
+      source: 'cache',
+      count: orders.length
     });
+
   } catch (error) {
-    console.error('❌ Error reading orders file:', error);
-    return NextResponse.json({ 
+    console.error('❌ Error reading orders from cache:', error);
+    
+    return NextResponse.json({
       orders: [],
-      error: 'Failed to read orders. Make sure Python stream is running.'
-    }, { status: 200 });
+      lastUpdate: Date.now(),
+      blockHeight: 0,
+      source: 'error',
+      error: 'Failed to read orders cache'
+    });
   }
 }
 

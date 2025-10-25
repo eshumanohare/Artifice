@@ -8,6 +8,9 @@ import hypersync
 import asyncio
 import json
 import time
+import signal
+import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -76,51 +79,6 @@ def decode_order_event(log):
         print(f"❌ Error decoding log: {e}")
         return None
 
-async def fetch_latest_orders():
-    """Fetch latest orders from the blockchain (for testing)"""
-    try:
-        # Create hypersync client for Polygon
-        client = hypersync.HypersyncClient(hypersync.ClientConfig(
-            url='https://polygon.hypersync.xyz'
-        ))
-        
-        # CTF Exchange contract
-        ctf_exchange = "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E"
-        
-        # OrderFilled event signature
-        event_topic = "0xd0a08e8c493f9c94f29311604c9de1b4e8c8d4c06bd0c789af57f2d65bfec0f6"
-        
-        # Get current height and fetch recent blocks
-        current_height = await client.get_height()
-        start_block = max(0, current_height - 100)  # Last 100 blocks
-        
-        # Create query for OrderFilled events
-        query = hypersync.preset_query_logs_of_event(
-            ctf_exchange,
-            event_topic,
-            start_block
-        )
-        
-        # Fetch data using stream method
-        receiver = await client.stream(query, hypersync.StreamConfig())
-        res = await receiver.recv()
-        
-        if not res or not res.data or not res.data.logs:
-            return []
-        
-        # Decode logs
-        orders = []
-        for raw_log in res.data.logs:
-            order = decode_order_event(raw_log)
-            if order:
-                orders.append(order)
-        
-        return orders
-        
-    except Exception as e:
-        print(f"❌ Error fetching orders: {e}")
-        return []
-
 async def stream_orders():
     """Stream OrderFilled events and update the JSON file"""
     print("🚀 Starting OrderFilled event stream...")
@@ -158,7 +116,7 @@ async def stream_orders():
     orders_buffer = []
     WHALE_THRESHOLD = 10000  # $10,000 USD threshold for whale detection
     
-    while True:
+    while not shutdown_flag:
         try:
             # Create query for OrderFilled events
             query = hypersync.preset_query_logs_of_event(
@@ -172,7 +130,7 @@ async def stream_orders():
             
             print(f"📡 Streaming from block {start_block}...")
             
-            while True:
+            while not shutdown_flag:
                 res = await receiver.recv()
                 
                 if res is None:
@@ -270,9 +228,59 @@ async def stream_orders():
             print(f"❌ Error in stream: {e}")
             await asyncio.sleep(5)  # Wait before retrying
 
+# Global flag for graceful shutdown
+shutdown_flag = False
+
+def signal_handler(signum, frame):
+    global shutdown_flag
+    print(f"\n🛑 Received signal {signum}, shutting down gracefully...")
+    shutdown_flag = True
+
+async def stream_orders_with_retry():
+    """Stream orders with automatic retry and graceful shutdown"""
+    global shutdown_flag
+    
+    # Set up signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    retry_count = 0
+    max_retries = 10
+    
+    while not shutdown_flag and retry_count < max_retries:
+        try:
+            await stream_orders()
+            # If we get here, the stream ended normally
+            break
+        except Exception as e:
+            retry_count += 1
+            print(f"❌ Stream error (attempt {retry_count}/{max_retries}): {e}")
+            
+            if retry_count >= max_retries:
+                print("❌ Max retries reached, exiting")
+                sys.exit(1)
+            
+            # Exponential backoff
+            wait_time = min(2 ** retry_count, 60)
+            print(f"⏳ Waiting {wait_time} seconds before retry...")
+            await asyncio.sleep(wait_time)
+
 if __name__ == "__main__":
     print("=" * 60)
     print("Polymarket Live Orders Stream")
     print("=" * 60)
-    asyncio.run(stream_orders())
+    print(f"🕐 Started at: {datetime.now().isoformat()}")
+    print(f"📁 Output file: {OUTPUT_FILE}")
+    print(f"🐋 Whales file: {WHALES_FILE}")
+    print("=" * 60)
+    
+    try:
+        asyncio.run(stream_orders_with_retry())
+    except KeyboardInterrupt:
+        print("\n🛑 Interrupted by user")
+    except Exception as e:
+        print(f"❌ Fatal error: {e}")
+        sys.exit(1)
+    finally:
+        print("👋 Stream ended")
 
