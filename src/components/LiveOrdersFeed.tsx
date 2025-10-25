@@ -88,7 +88,8 @@ export default function LiveOrdersFeed() {
 
     const fetchOrders = async () => {
       try {
-        const res = await fetch('/api/orders');
+        const localApiUrl = process.env.NEXT_PUBLIC_LOCAL_API_URL || 'http://localhost:3001';
+        const res = await fetch(`${localApiUrl}/api/orders`);
         if (!res.ok) throw new Error('Failed to fetch orders');
         const data = await res.json();
         

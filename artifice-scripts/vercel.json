@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/fetch-orders",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "functions": {
+    "src/app/api/cron/fetch-orders/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
