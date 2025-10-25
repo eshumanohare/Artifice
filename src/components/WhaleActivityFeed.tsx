@@ -69,7 +69,8 @@ export default function WhaleActivityFeed() {
 
     const fetchWhaleActivity = async () => {
       try {
-        const res = await fetch('/api/whales');
+        const localApiUrl = process.env.NEXT_PUBLIC_LOCAL_API_URL || 'http://localhost:3001';
+        const res = await fetch(`${localApiUrl}/api/whales`);
         if (!res.ok) throw new Error('Failed to fetch whale activity');
         const data = await res.json();
         

@@ -62,6 +62,7 @@ stop_streams() {
     
     # Kill all Python processes running our scripts
     pkill -f "stream_orders.py"
+    pkill -f "mock_stream_orders.py"
     pkill -f "stream_whale_activity.py"
     
     echo -e "${GREEN}✅ All streams stopped${NC}"
@@ -73,7 +74,7 @@ show_status() {
     echo "=================="
     
     local streams=(
-        "stream_orders.py:Live Orders"
+        "mock_stream_orders.py:Live Orders (Mock)"
         "stream_whale_activity.py:Whale Activity"
     )
     
@@ -121,7 +122,7 @@ case "${1:-start}" in
         echo ""
         
         # Start each stream
-        start_stream "stream_orders.py" "Live Orders Stream"
+        start_stream "mock_stream_orders.py" "Live Orders Stream (Mock)"
         sleep 2
         
         sleep 2
@@ -148,9 +149,9 @@ case "${1:-start}" in
         while true; do
             sleep 10
             # Check if any critical streams have died
-            if ! is_running "stream_orders.py"; then
+            if ! is_running "mock_stream_orders.py"; then
                 echo -e "${RED}⚠️  Live Orders stream died, restarting...${NC}"
-                start_stream "stream_orders.py" "Live Orders Stream"
+                start_stream "mock_stream_orders.py" "Live Orders Stream (Mock)"
             fi
         done
         ;;
