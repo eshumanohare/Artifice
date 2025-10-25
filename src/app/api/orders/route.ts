@@ -1,48 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { envioClient, convertEnvioOrderToOrder } from '@/lib/envio-client';
+import fs from 'fs';
+import path from 'path';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log(`🔍 Fetching live orders from Envio indexer...`);
+    console.log(`🔍 Fetching live orders from cache...`);
     
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
     const marketId = searchParams.get('marketId');
 
-    let orders;
+    // Read from the cache file
+    const cachePath = path.join(process.cwd(), '.cache', 'live_orders.json');
     
-    if (marketId) {
-      // Get orders for specific market
-      orders = await envioClient.getOrdersByMarket(marketId, limit);
-    } else {
-      // Get recent orders
-      orders = await envioClient.getRecentOrders(limit);
+    if (!fs.existsSync(cachePath)) {
+      console.log('📁 Cache file not found, returning empty data');
+      return NextResponse.json({
+        orders: [],
+        lastUpdate: Date.now(),
+        blockHeight: 0,
+        source: 'cache-missing',
+        count: 0
+      });
     }
 
-    // Convert Envio orders to your existing format
-    const convertedOrders = orders.map(convertEnvioOrderToOrder);
+    const cacheData = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    let orders = cacheData.orders || [];
 
-    console.log(`✅ Loaded ${convertedOrders.length} orders from Envio indexer`);
+    // Filter by market if specified
+    if (marketId) {
+      orders = orders.filter((order: any) => order.marketId === marketId);
+    }
+
+    // Apply limit
+    orders = orders.slice(0, limit);
+
+    console.log(`✅ Loaded ${orders.length} orders from cache`);
 
     return NextResponse.json({
-      orders: convertedOrders,
-      lastUpdate: Date.now(),
-      blockHeight: convertedOrders.length > 0 ? convertedOrders[0].blockNumber : 0,
-      source: 'envio-indexer',
-      count: convertedOrders.length
+      orders,
+      lastUpdate: cacheData.lastUpdate || Date.now(),
+      blockHeight: cacheData.blockHeight || 0,
+      source: 'cache',
+      count: orders.length
     });
 
   } catch (error) {
-    console.error('❌ Error fetching orders from Envio:', error);
+    console.error('❌ Error reading orders from cache:', error);
     
-    // Fallback to empty data if Envio is unavailable
     return NextResponse.json({
       orders: [],
       lastUpdate: Date.now(),
       blockHeight: 0,
-      source: 'envio-error',
-      error: 'Envio indexer unavailable'
+      source: 'error',
+      error: 'Failed to read orders cache'
     });
   }
 }

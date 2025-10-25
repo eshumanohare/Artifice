@@ -88,14 +88,6 @@ export default function LiveOrdersFeed() {
 
     const fetchOrders = async () => {
       try {
-        // First, trigger an update to get fresh data
-        try {
-          await fetch('/api/update-orders', { method: 'POST' });
-        } catch (updateErr) {
-          console.log('Update trigger failed (this is OK):', updateErr);
-        }
-        
-        // Then fetch the orders
         const res = await fetch('/api/orders');
         if (!res.ok) throw new Error('Failed to fetch orders');
         const data = await res.json();
