@@ -14,15 +14,18 @@ export async function GET(request: NextRequest) {
       closed: 'false',
       order: 'volume24hr',
       ascending: 'false',
-      limit: '15'
+      limit: '30'
     });
 
     // Add search parameter if provided
     if (search) {
       params.append('search', search);
+      console.log(`🔍 Searching for: "${search}"`);
     }
 
-    const response = await fetch(`${url}?${params}`);
+    const fullUrl = `${url}?${params}`;
+    console.log(`📡 Fetching from: ${fullUrl}`);
+    const response = await fetch(fullUrl);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -30,6 +33,49 @@ export async function GET(request: NextRequest) {
 
     const markets = await response.json();
     console.log(`📥 Fetched ${Array.isArray(markets) ? markets.length : 0} markets from Polymarket API`);
+    
+    // If search returned no results, try a fallback search with different parameters
+    if (search && Array.isArray(markets) && markets.length === 0) {
+      console.log(`🔍 No results for "${search}", trying fallback search...`);
+      const fallbackParams = new URLSearchParams({
+        closed: 'false',
+        order: 'volume24hr',
+        ascending: 'false',
+        limit: '30'
+      });
+      fallbackParams.append('search', search);
+      
+      const fallbackResponse = await fetch(`${url}?${fallbackParams}`);
+      if (fallbackResponse.ok) {
+        const fallbackMarkets = await fallbackResponse.json();
+        console.log(`📥 Fallback search returned ${Array.isArray(fallbackMarkets) ? fallbackMarkets.length : 0} markets`);
+        if (Array.isArray(fallbackMarkets) && fallbackMarkets.length > 0) {
+          return NextResponse.json(fallbackMarkets.map((market: any) => ({
+            id: market.id,
+            question: market.question,
+            description: market.description,
+            image: market.image,
+            eventImage: market.events?.[0]?.image || market.image,
+            volume24hr: market.volume24hr,
+            liquidity: market.liquidity,
+            outcomePrices: typeof market.outcomePrices === 'string' 
+              ? JSON.parse(market.outcomePrices) 
+              : market.outcomePrices,
+            endDate: market.endDate,
+            clobTokenIds: market.clobTokenIds,
+            conditionId: market.conditionId,
+            slug: market.slug,
+            eventSlug: market.events?.[0]?.slug || market.slug,
+            volume: market.volumeClob ?? market.volume,
+            volume1wk: market.volume1wkClob ?? market.volume1wk,
+            volume1mo: market.volume1moClob ?? market.volume1mo,
+            lastTradePrice: market.lastTradePrice,
+            bestAsk: market.bestAsk,
+            spread: market.spread
+          })));
+        }
+      }
+    }
 
     // Format the response to include only necessary fields
     const formattedMarkets = markets.map((market: any) => ({
@@ -47,6 +93,7 @@ export async function GET(request: NextRequest) {
       clobTokenIds: market.clobTokenIds,
       conditionId: market.conditionId,
       slug: market.slug,
+      eventSlug: market.events?.[0]?.slug || market.slug, // Add event slug
       volume: market.volumeClob ?? market.volume,
       volume1wk: market.volume1wkClob ?? market.volume1wk,
       volume1mo: market.volume1moClob ?? market.volume1mo,

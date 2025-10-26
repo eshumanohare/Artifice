@@ -167,6 +167,40 @@ export default function MarketModal({ market, onClose }: MarketModalProps) {
           </div>
         </div>
 
+        {/* Order Buttons Section */}
+        <div className="p-6 border-b border-blue-100/40">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a
+              href={`https://polymarket.com/event/${market.eventSlug || market.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 glass-card p-4 text-center border-2 border-green-200 hover:border-green-400 bg-green-50/50 hover:bg-green-100/50 transition-all duration-200 group"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5 text-green-700 group-hover:text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                <span className="text-lg font-semibold text-green-700 group-hover:text-green-800">Place YES Order</span>
+              </div>
+              <div className="text-sm text-green-600 mt-1">{(yesPrice).toFixed(1)}¢</div>
+            </a>
+            <a
+              href={`https://polymarket.com/event/${market.eventSlug || market.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 glass-card p-4 text-center border-2 border-red-200 hover:border-red-400 bg-red-50/50 hover:bg-red-100/50 transition-all duration-200 group"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5 text-red-700 group-hover:text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                <span className="text-lg font-semibold text-red-700 group-hover:text-red-800">Place NO Order</span>
+              </div>
+              <div className="text-sm text-red-600 mt-1">{(noPrice).toFixed(1)}¢</div>
+            </a>
+          </div>
+        </div>
+
         {/* Tab Navigation */}
         <div className="border-b border-blue-100/40">
           <div className="flex space-x-2 px-6 py-2">

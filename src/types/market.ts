@@ -11,6 +11,7 @@ export interface Market {
   clobTokenIds: string[];
   conditionId: string;
   slug: string;
+  eventSlug?: string;
   volume?: number;
   volume1wk?: number;
   volume1mo?: number;
